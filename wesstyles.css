@@ -27,14 +27,22 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 500px;
-    height: 500px;
+    width: 400px;
+    height: 400px;
     background-color: #1e1e1e;
     color: #ffffff;
     font-size: 18px;
     border: 2px solid #333;
     border-radius: 8px;
     transition: all 0.3s ease;
+}
+
+.square-link.Solar{
+    background-color: blueviolet;
+}
+
+.square-link.Frog{
+    background-color: green;
 }
 
 .square-link:hover {
