@@ -27,8 +27,8 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 150px;
-    height: 150px;
+    width: 500px;
+    height: 500px;
     background-color: #1e1e1e;
     color: #ffffff;
     font-size: 18px;
