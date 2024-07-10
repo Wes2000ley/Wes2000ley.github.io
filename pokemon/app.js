@@ -42,14 +42,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const fetchAllPokemon = async () => {
         try {
-            // Fetch data from local JSON files
-            const [pokemonData, habitatData, colorData] = await Promise.all([
-                fetchJSON('data/allPokemon.json'),
+            // Fetch data from all 10 parts of allPokemon.json
+            for (let i = 1; i <= 10; i++) {
+                const pokemonData = await fetchJSON(`data/allPokemon_part${i}.json`);
+                allPokemon = allPokemon.concat(pokemonData);
+            }
+
+            // Fetch habitatMap and colorMap from local JSON files
+            const [habitatData, colorData] = await Promise.all([
                 fetchJSON('data/habitatMap.json'),
                 fetchJSON('data/colorMap.json')
             ]);
 
-            allPokemon = pokemonData;
             habitatMap = habitatData;
             colorMap = colorData;
 
