@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Pokédex</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="pokedex-container">
+        <div class="pokedex-header">
+            <h1>Pokédex</h1>
+            <div class="search-bar">
+                <input type="text" id="search" placeholder="Search Pokémon by name..." autocomplete="off">
+                <select id="type-filter">
+                    <!-- Type filter options will be populated dynamically -->
+                </select>
+                <button id="search-button">Search</button>
+            </div>
+        </div>
+        <div id="pokedex" class="pokedex"></div>
+        <div class="pagination">
+            <button id="prev" disabled>Previous</button>
+            <button id="next">Next</button>
+        </div>
+    </div>
+    <div id="pokemon-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">BACK</span>
+            <span class="close2">BACK</span>
+            <div id="pokemon-details"></div>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
