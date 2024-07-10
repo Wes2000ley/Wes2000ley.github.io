@@ -42,31 +42,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const fetchAllPokemon = async () => {
         try {
-            const [data1, data2, data3, data4] = await Promise.all([
-                fetchAndParse('https://pokeapi.co/api/v2/pokemon?limit=10000'),
-                fetchAndParse('https://pokeapi.co/api/v2/pokemon-habitat?limit=1000'),
-                fetchAndParse('https://pokeapi.co/api/v2/pokemon-color?limit=1000'),
-                fetchAndParse('https://pokeapi.co/api/v2/pokemon-species?limit=1000')
+            // Fetch data from local JSON files
+            const [pokemonData, habitatData, colorData] = await Promise.all([
+                fetchJSON('data/allPokemon.json'),
+                fetchJSON('data/habitatMap.json'),
+                fetchJSON('data/colorMap.json')
             ]);
 
-            // Store the initial list of Pokémon
-            allPokemon = data1.results;
-
-            // Create a mapping of species to their habitats
-            await Promise.all(data2.results.map(async (habitat) => {
-                const habitatData = await fetchAndParse(habitat.url);
-                habitatData.pokemon_species.forEach(species => {
-                    habitatMap[species.name] = habitat.name === 'rare' ? 'Unknown' : habitat.name;
-                });
-            }));
-
-            // Create a mapping of species to their colors
-            await Promise.all(data3.results.map(async (color) => {
-                const colorData = await fetchAndParse(color.url);
-                colorData.pokemon_species.forEach(species => {
-                    colorMap[species.name] = color.name;
-                });
-            }));
+            allPokemon = pokemonData;
+            habitatMap = habitatData;
+            colorMap = colorData;
 
             // Fetch details for each Pokémon and merge habitat and color information
             await Promise.all(allPokemon.map(async (pokemon) => {
@@ -75,14 +60,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 pokemonDetails.color = colorMap[pokemon.name] || 'Unknown'; // Assign color name or default to 'Unknown'
                 Object.assign(pokemon, pokemonDetails); // Merge details into the original Pokémon object
             }));
-
-            // Check and fetch additional forms like Mega Evolution
-            await fetchAdditionalForms(data4.results);
-
-            // Save data as files
-            saveAsFile('allPokemon.json', JSON.stringify(allPokemon));
-            saveAsFile('habitatMap.json', JSON.stringify(habitatMap));
-            saveAsFile('colorMap.json', JSON.stringify(colorMap));
 
             // Populate type filter dropdown
             populateTypeFilter();
@@ -95,9 +72,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    const fetchAndParse = async (url) => {
-        const response = await fetch(url);
-        return await response.json();
+    const fetchJSON = async (filepath) => {
+        try {
+            const response = await fetch(filepath);
+            return await response.json();
+        } catch (error) {
+            console.error(`Error fetching JSON from ${filepath}:`, error);
+            throw error; // Propagate the error for further handling
+        }
     };
 
     const fetchPokemonDetails = async (url) => {
@@ -108,19 +90,6 @@ document.addEventListener('DOMContentLoaded', () => {
         pokemon.abilities = pokemon.abilities.map(ability => ability.ability.name);
         pokemon.types = pokemon.types.map(type => type.type.name);
         return pokemon;
-    };
-
-    const fetchAdditionalForms = async (speciesList) => {
-        await Promise.all(speciesList.map(async (species) => {
-            const speciesResponse = await fetch(species.url);
-            const speciesData = await speciesResponse.json();
-            // Check for forms like Mega Evolution
-            const megaForm = speciesData.varieties.find(variety => variety.is_mega);
-            if (megaForm) {
-                const megaPokemon = await fetchPokemonDetails(megaForm.pokemon.url);
-                allPokemon.push(megaPokemon); // Add Mega Pokémon to the list
-            }
-        }));
     };
 
     const displayPokemon = (pokemonList) => {
@@ -243,20 +212,5 @@ document.addEventListener('DOMContentLoaded', () => {
         displayPokemon(filteredPokemon.slice(offset, offset + limit));
     };
 
-    const saveAsFile = (fileName, data) => {
-        const blob = new Blob([data], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = fileName;
-        document.body.appendChild(a);
-        a.click();
-        setTimeout(() => {
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        }, 0);
-    };
-
-    fetchAllPokemon();
+    fetchAllPokemon(); // Fetch data when DOM is loaded
 });
