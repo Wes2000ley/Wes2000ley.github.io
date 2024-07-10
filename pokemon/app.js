@@ -13,6 +13,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const limit = 20;
     let offset = 0;
     let allPokemon = [];
+    let habitatMap = {};
+    let colorMap = {};
     let filteredPokemon = [];
 
     // Define colors for Pokémon types
@@ -39,65 +41,63 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const fetchAllPokemon = async () => {
-        const url1 = 'https://pokeapi.co/api/v2/pokemon?limit=10000';
-        const url2 = 'https://pokeapi.co/api/v2/pokemon-habitat?limit=10000';
-        const url3 = 'https://pokeapi.co/api/v2/pokemon-color?limit=10000';
-        const url4 = 'https://pokeapi.co/api/v2/pokemon-species?limit=10000';
+        try {
+            const [data1, data2, data3, data4] = await Promise.all([
+                fetchAndParse('https://pokeapi.co/api/v2/pokemon?limit=10000'),
+                fetchAndParse('https://pokeapi.co/api/v2/pokemon-habitat?limit=1000'),
+                fetchAndParse('https://pokeapi.co/api/v2/pokemon-color?limit=1000'),
+                fetchAndParse('https://pokeapi.co/api/v2/pokemon-species?limit=1000')
+            ]);
 
-        // Fetch data from all URLs concurrently
-        const [response1, response2, response3, response4] = await Promise.all([
-            fetch(url1),
-            fetch(url2),
-            fetch(url3),
-            fetch(url4)
-        ]);
+            // Store the initial list of Pokémon
+            allPokemon = data1.results;
 
-        // Parse JSON data from responses
-        const data1 = await response1.json(); // Pokémon
-        const data2 = await response2.json(); // Pokémon habitats
-        const data3 = await response3.json(); // Pokémon colors
-        const data4 = await response4.json(); // Pokémon species
+            // Create a mapping of species to their habitats
+            await Promise.all(data2.results.map(async (habitat) => {
+                const habitatData = await fetchAndParse(habitat.url);
+                habitatData.pokemon_species.forEach(species => {
+                    habitatMap[species.name] = habitat.name === 'rare' ? 'Unknown' : habitat.name;
+                });
+            }));
 
-        // Store the initial list of Pokémon
-        allPokemon = data1.results;
+            // Create a mapping of species to their colors
+            await Promise.all(data3.results.map(async (color) => {
+                const colorData = await fetchAndParse(color.url);
+                colorData.pokemon_species.forEach(species => {
+                    colorMap[species.name] = color.name;
+                });
+            }));
 
-        // Create a mapping of species to their habitats
-        const habitatMap = {};
-        await Promise.all(data2.results.map(async (habitat) => {
-            const habitatResponse = await fetch(habitat.url);
-            const habitatData = await habitatResponse.json();
-            habitatData.pokemon_species.forEach(species => {
-                habitatMap[species.name] = habitat.name === 'rare' ? 'Unknown' : habitat.name;
-            });
-        }));
+            // Fetch details for each Pokémon and merge habitat and color information
+            await Promise.all(allPokemon.map(async (pokemon) => {
+                const pokemonDetails = await fetchPokemonDetails(pokemon.url);
+                pokemonDetails.habitat = habitatMap[pokemon.name] || 'Unknown'; // Assign habitat name or default to 'Unknown'
+                pokemonDetails.color = colorMap[pokemon.name] || 'Unknown'; // Assign color name or default to 'Unknown'
+                Object.assign(pokemon, pokemonDetails); // Merge details into the original Pokémon object
+            }));
 
-        // Create a mapping of species to their colors
-        const colorMap = {};
-        await Promise.all(data3.results.map(async (color) => {
-            const colorResponse = await fetch(color.url);
-            const colorData = await colorResponse.json();
-            colorData.pokemon_species.forEach(species => {
-                colorMap[species.name] = color.name;
-            });
-        }));
+            // Check and fetch additional forms like Mega Evolution
+            await fetchAdditionalForms(data4.results);
 
-        // Fetch details for each Pokémon and merge habitat and color information
-        await Promise.all(allPokemon.map(async (pokemon) => {
-            const pokemonDetails = await fetchPokemonDetails(pokemon.url);
-            pokemonDetails.habitat = habitatMap[pokemon.name] || 'Unknown'; // Assign habitat name or default to 'Unknown'
-            pokemonDetails.color = colorMap[pokemon.name] || 'Unknown'; // Assign color name or default to 'Unknown'
-            Object.assign(pokemon, pokemonDetails); // Merge details into the original Pokémon object
-        }));
+            // Save data as files
+            saveAsFile('allPokemon.json', JSON.stringify(allPokemon));
+            saveAsFile('habitatMap.json', JSON.stringify(habitatMap));
+            saveAsFile('colorMap.json', JSON.stringify(colorMap));
 
-        // Check and fetch additional forms like Mega Evolution
-        await fetchAdditionalForms(data4.results);
+            // Populate type filter dropdown
+            populateTypeFilter();
 
-        // Populate type filter dropdown
-        populateTypeFilter();
+            // Initially display all Pokémon
+            filteredPokemon = allPokemon;
+            displayPokemon(filteredPokemon.slice(offset, offset + limit));
+        } catch (error) {
+            console.error('Error fetching Pokémon data:', error);
+        }
+    };
 
-        // Initially display all Pokémon
-        filteredPokemon = allPokemon;
-        displayPokemon(filteredPokemon.slice(offset, offset + limit));
+    const fetchAndParse = async (url) => {
+        const response = await fetch(url);
+        return await response.json();
     };
 
     const fetchPokemonDetails = async (url) => {
@@ -225,33 +225,37 @@ document.addEventListener('DOMContentLoaded', () => {
             return types;
         }, []);
 
-        // Sort types alphabetically
-        allTypes.sort();
-
-        // Clear and populate type filter dropdown
-        typeFilter.innerHTML = '<option value="">All types</option>';
-        allTypes.forEach(type => {
-            const option = document.createElement('option');
-            option.value = type.toLowerCase();
-            option.textContent = type.charAt(0).toUpperCase() + type.slice(1);
-            typeFilter.appendChild(option);
-        });
+        const typeOptions = allTypes.map(type => `<option value="${type}">${type}</option>`).join('');
+        typeFilter.innerHTML = `<option value="">All</option>${typeOptions}`;
     };
 
     const filterPokemon = () => {
-        const query = searchInput.value.trim().toLowerCase();
+        const searchTerm = searchInput.value.toLowerCase();
         const selectedType = typeFilter.value.toLowerCase();
 
-        // Filter by name and selected type
-        filteredPokemon = allPokemon.filter(pokemon => {
-            const nameMatches = pokemon.name.includes(query);
-            const typeMatches = selectedType === '' || pokemon.types.includes(selectedType);
-            return nameMatches && typeMatches;
-        });
+        filteredPokemon = allPokemon.filter(pokemon =>
+            (pokemon.name.toLowerCase().includes(searchTerm) || pokemon.types.some(type => type.includes(searchTerm))) &&
+            (selectedType === '' || pokemon.types.includes(selectedType))
+        );
 
         currentPage = 1;
         updatePagination();
         displayPokemon(filteredPokemon.slice(offset, offset + limit));
+    };
+
+    const saveAsFile = (fileName, data) => {
+        const blob = new Blob([data], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }, 0);
     };
 
     fetchAllPokemon();
