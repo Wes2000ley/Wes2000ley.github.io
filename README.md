@@ -1,1 +1,1 @@
-solar system educational and interactive website
+Wesley Atwell's website portfolio
