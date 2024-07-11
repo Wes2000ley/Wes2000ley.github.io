@@ -11,6 +11,7 @@ body {
     box-sizing: border-box;
     height: 100%;
     background-repeat: no-repeat;
+    overflow: auto;
 }
 
 @font-face {
@@ -115,6 +116,10 @@ body {
     transition: background-color 0.3s, color 0.3s;
 }
 
+.type-filter label:hover{
+    scale: 1.25;
+}
+
 
 .pokemon-card,
 .pokemon {
@@ -130,6 +135,16 @@ body {
 .pokemon-card:hover,
 .pokemon:hover {
     transform: scale(1.05);
+}
+
+.pokemon-card h2{
+    text-transform: capitalize;
+    font-size: 200%;
+}
+
+.pokemon-card p{
+    text-transform: capitalize;
+    font-size: 130%;
 }
 
 #pokemon-list {
@@ -261,33 +276,74 @@ button:hover:enabled {
     width: 300px;
     height: 300px;
     border-radius: 50%; /* Make the image circular */
-    background-color: rgb(171, 171, 171);
     position: relative;
     bottom: 0%;
 }
 
-.modal-body p:nth-child(1),
-.modal-body p:nth-child(4) {
-    color: #333; /* Example styling */
-    font-weight: bold; /* Example styling */
-    font-size: 150%;
-    position: absolute;
-    text-align: left;
-    left: 75%;
-    top: 15%;
-    padding: 0%;
+#pokemon-details{
+font-size: 120%;
+font-weight: 800;
+text-transform: capitalize;
 }
 
-.modal-body a,
-.modal-header h2 {
-    color: #333; /* Example styling */
-    font-weight: bold; /* Example styling */
-    font-size: 150%;
+#pokemon-details h2{
+    font-size: 250%;
+    font-weight: 700;
     position: absolute;
-    text-align: left;
-    left: 0%;
-    padding: 1%;
     width: 100%;
+    bottom: 5%;
+    left:-5%;
+    text-align:center;
+    text-transform: capitalize;
+    }
+
+    .Mtypes{
+        font-size: 140%;
+    }
+
+
+#pokemon-details :nth-child(3){
+    position: absolute;
+    left: 70%;
+    top:15%;
+    text-transform:none
+    }
+
+    #pokemon-details :nth-child(4){
+        position: absolute;
+        left: 70%;
+        top: 20%;
+        text-transform:none
+        }
+
+        #pokemon-details :nth-child(5){
+            position: absolute;
+            left: 2%;
+            top: 60%;
+            width: 1%;
+            }
+
+.pdlink{
+    position: absolute;
+     right:23%;
+     top: 29%;
+     text-align: left;
+     width: 1%;
+     font-weight:900;
+     display: block flex ;
+     padding-top: 0%;
+     padding-left: 0%;
+}
+
+.pdlink:hover{
+    position: absolute;
+     text-align: left;
+     scale: 1.5;
+     transition-duration: 0.5s;
+     display: block flex ;
+     padding-top: 1%;
+     padding-left: 1%;
+     padding-right: 2%;
 }
 
 .officialimage {

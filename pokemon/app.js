@@ -78,10 +78,13 @@ document.addEventListener("DOMContentLoaded", function() {
                 } else {
                     return type; // Fallback if no color is defined for the type
                 }
-            }).join(' and ');
+            }).join(' | ');
+
+            // Set the color of the Pokémon's name based on its first type
+            const nameColor = typeColors[pokemon.types[0].toLowerCase()] || '#000';
 
             pokemonElement.innerHTML = `
-                <h2>${pokemon.name}</h2>
+                <h2 class="pokemon-name" style="color: ${nameColor}">${pokemon.name}</h2>
                 <p>Types: ${typeHTML}</p>
                 <img src="${pokemon.sprite}" alt="error.png" class="pokemon-image">
                 <img src="${pokemon.art}" alt="${pokemon.name} official art" class="officialimage">
@@ -255,16 +258,18 @@ document.addEventListener("DOMContentLoaded", function() {
             } else {
                 return type; // Fallback if no color is defined for the type
             }
-        }).join(' and ');
+        }).join(' | ');
+
+        const nameColor = typeColors[pokemon.types[0].toLowerCase()] || '#000';
 
         modalDetails.innerHTML = `
-            <h2>${pokemon.name}</h2>
-            <p>Types: ${typeHTML}</p>
+            <h2 style="color: ${nameColor}">${pokemon.name}</h2>
+            <p class="Mtypes">Types: ${typeHTML}</p>
             <p>Height: ${pokemon.height} m</p>
             <p>Weight: ${pokemon.weight} kg</p>
             <p>Abilities: ${pokemon.abilities}</p>
             <img src="${pokemon.art}" alt="${pokemon.name} official art">
-            <a href="https://pokemondb.net/pokedex/${pokemon.name.toLowerCase()}" target="_blank">Pokémon Database</a>
+            <a href="https://pokemondb.net/pokedex/${pokemon.name.toLowerCase()}" target="_blank" class="pdlink">Pokémon Database</a>
         `;
         modal.style.display = 'block'; // Display the modal
     }
