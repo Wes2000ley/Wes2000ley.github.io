@@ -103,6 +103,9 @@ body {
 #type-filter label.checked {
     animation: rainbow 5s infinite;
     font-weight: 900;
+    scale: 1.1;
+    border: solid black 2px;
+    box-shadow:0px 0px 0px 2px black inset
 
 }
 
