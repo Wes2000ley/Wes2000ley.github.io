@@ -1,21 +1,5 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const pokedex = document.getElementById('pokedex');
-    const searchInput = document.getElementById('search');
-    const searchButton = document.getElementById('search-button');
-    const prevButton = document.getElementById('prev');
-    const nextButton = document.getElementById('next');
-    const modal = document.getElementById('pokemon-modal');
-    const modalContent = document.getElementById('pokemon-details');
-    const closeModal = document.querySelectorAll('.close, .close2');
-    const typeFilter = document.getElementById('type-filter');
-
-    let currentPage = 1;
-    const limit = 20;
-    let offset = 0;
-    let allPokemon = [];
-    let habitatMap = {};
-    let colorMap = {};
-    let filteredPokemon = [];
+document.addEventListener("DOMContentLoaded", function() {
+    let pokemonData; // Define pokemonData variable in a scope accessible to all functions
 
     // Define colors for Pokémon types
     const typeColors = {
@@ -40,181 +24,249 @@ document.addEventListener('DOMContentLoaded', () => {
         // Add more colors as needed
     };
 
-    const fetchAllPokemon = async () => {
-        try {
-            // Fetch data from all 10 parts of allPokemon.json
-            for (let i = 1; i <= 10; i++) {
-                const pokemonData = await fetchJSON(`data/allPokemon_part${i}.json`);
-                allPokemon = allPokemon.concat(pokemonData);
-            }
+     // Function to calculate the complementary color
+     function getComplementaryColor(hex) {
+        // Remove the hash at the start if it's there
+        hex = hex.replace(/^#/, '');
 
-            // Fetch habitatMap and colorMap from local JSON files
-            const [habitatData, colorData] = await Promise.all([
-                fetchJSON('data/habitatMap.json'),
-                fetchJSON('data/colorMap.json')
-            ]);
+        // Parse the hex color
+        let r = parseInt(hex.substring(0, 2), 16);
+        let g = parseInt(hex.substring(2, 4), 16);
+        let b = parseInt(hex.substring(4, 6), 16);
 
-            habitatMap = habitatData;
-            colorMap = colorData;
+        // Calculate the complementary color
+        r = (255 - r).toString(16).padStart(2, '0');
+        g = (255 - g).toString(16).padStart(2, '0');
+        b = (255 - b).toString(16).padStart(2, '0');
 
-            // Fetch details for each Pokémon and merge habitat and color information
-            await Promise.all(allPokemon.map(async (pokemon) => {
-                const pokemonDetails = await fetchPokemonDetails(pokemon.url);
-                pokemonDetails.habitat = habitatMap[pokemon.name] || 'Unknown'; // Assign habitat name or default to 'Unknown'
-                pokemonDetails.color = colorMap[pokemon.name] || 'Unknown'; // Assign color name or default to 'Unknown'
-                Object.assign(pokemon, pokemonDetails); // Merge details into the original Pokémon object
-            }));
+        // Return the complementary color as a hex string
+        return `#${r}${g}${b}`;
+    }
 
-            // Populate type filter dropdown
-            populateTypeFilter();
+    // Define the displayPokemonData function
+    function displayPokemonData(data, searchTerm, typesToFilter, currentPage, pokemonPerPage) {
+        // Filter the data based on the search term and types
+        const filteredData = data.filter(pokemon => {
+            const nameMatch = pokemon.name.toLowerCase().includes(searchTerm.toLowerCase());
+            
+            // Check if all selected types are included in the Pokémon's types
+            const typeMatch = typesToFilter.length === 0 || typesToFilter.every(type => pokemon.types.includes(type.toLowerCase()));
 
-            // Initially display all Pokémon
-            filteredPokemon = allPokemon;
-            displayPokemon(filteredPokemon.slice(offset, offset + limit));
-        } catch (error) {
-            console.error('Error fetching Pokémon data:', error);
+            return nameMatch && typeMatch;
+        });
+
+        // Calculate the index of the first and last Pokémon to display on the current page
+        const startIndex = (currentPage - 1) * pokemonPerPage;
+        const endIndex = Math.min(startIndex + pokemonPerPage, filteredData.length);
+
+        // Create a new HTML element for each Pokémon on the current page
+        const pokemonList = document.getElementById('pokemon-list');
+        if (!pokemonList) {
+            console.error('Pokemon list element not found');
+            return;
         }
-    };
-
-    const fetchJSON = async (filepath) => {
-        try {
-            const response = await fetch(filepath);
-            return await response.json();
-        } catch (error) {
-            console.error(`Error fetching JSON from ${filepath}:`, error);
-            throw error; // Propagate the error for further handling
-        }
-    };
-
-    const fetchPokemonDetails = async (url) => {
-        const res = await fetch(url);
-        const pokemon = await res.json();
-        pokemon.height = pokemon.height / 10; // Convert height to meters
-        pokemon.weight = pokemon.weight / 10; // Convert weight to kilograms
-        pokemon.abilities = pokemon.abilities.map(ability => ability.ability.name);
-        pokemon.types = pokemon.types.map(type => type.type.name);
-        return pokemon;
-    };
-
-    const displayPokemon = (pokemonList) => {
-        pokedex.innerHTML = '';
-        pokemonList.forEach(pokemon => {
+        pokemonList.innerHTML = '';
+        for (let i = startIndex; i < endIndex; i++) {
+            const pokemon = filteredData[i];
             const pokemonElement = document.createElement('div');
-            pokemonElement.classList.add('pokemon');
-            const colorStyle = `color: ${pokemon.color};`;
-            pokemonElement.innerHTML = `
-                <img src="${pokemon.sprites.front_default}" alt="${pokemon.name}">
-                <h2 style="${colorStyle}">${pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1)}</h2>
-                <p>Type: ${pokemon.types.map(type => {
-                    const typeName = type;
-                    const typeColor = typeColors[typeName] || '#ffffff'; // Default to white if no color found
-                    return `<span class="pokemon-type" style="background-color: ${typeColor};">${typeName}</span>`;
-                }).join(', ')}</p>
-            `;
-            pokemonElement.addEventListener('click', () => openModal(pokemon));
-            pokedex.appendChild(pokemonElement);
-        });
-        updatePagination();
-    };
+            pokemonElement.classList.add('pokemon-card');
 
-    const openModal = (pokemon) => {
-        const colorStyle = `color: ${pokemon.color};`;
-        modalContent.innerHTML = `
-            <div class="modal-header">
-                <img src="${pokemon.sprites.other['official-artwork'].front_default}" alt="${pokemon.name}">
-                <h2 style="${colorStyle}">${pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1)}</h2>
-            </div>
-            <div class="modal-body">
-                <p>Type: ${pokemon.types.map(type => {
-                    const typeName = type;
-                    const typeColor = typeColors[typeName] || '#ffffff'; // Default to white if no color found
-                    return `<span class="pokemon-type" style="background-color: ${typeColor};">${typeName}</span>`;
-                }).join(' and ')}</p>
-                <p>Height: ${pokemon.height.toFixed(1)} m</p>
-                <p>Weight: ${pokemon.weight.toFixed(1)} kg</p>
-                <p>Abilities: ${pokemon.abilities.join(' or ')}</p>
-                <p>Habitat: ${pokemon.habitat}</p>
-                <a class="pokemon-link" href="https://pokemondb.net/pokedex/${pokemon.name}" target="_blank">More details on PokemonDB</a>
-            </div>
-        `;
-        modal.style.display = 'block';
-    };
-
-    closeModal.forEach(element => {
-        element.addEventListener('click', () => {
-            modal.style.display = 'none';
-        });
-    });
-
-    window.addEventListener('click', (event) => {
-        if (event.target == modal) {
-            modal.style.display = 'none';
-        }
-    });
-
-    const updatePagination = () => {
-        offset = (currentPage - 1) * limit;
-        const totalPages = Math.ceil(filteredPokemon.length / limit);
-        prevButton.disabled = currentPage === 1;
-        nextButton.disabled = currentPage === totalPages || filteredPokemon.length === 0;
-    };
-
-    prevButton.addEventListener('click', () => {
-        if (currentPage > 1) {
-            currentPage--;
-            updatePagination();
-            displayPokemon(filteredPokemon.slice(offset, offset + limit));
-        }
-    });
-
-    nextButton.addEventListener('click', () => {
-        const totalPages = Math.ceil(filteredPokemon.length / limit);
-        if (currentPage < totalPages) {
-            currentPage++;
-            updatePagination();
-            displayPokemon(filteredPokemon.slice(offset, offset + limit));
-        }
-    });
-
-    searchButton.addEventListener('click', () => {
-        filterPokemon();
-    });
-
-    searchInput.addEventListener('input', () => {
-        filterPokemon();
-    });
-
-    typeFilter.addEventListener('change', () => {
-        filterPokemon();
-    });
-
-    const populateTypeFilter = () => {
-        const allTypes = allPokemon.reduce((types, pokemon) => {
-            pokemon.types.forEach(type => {
-                if (!types.includes(type)) {
-                    types.push(type);
+            // Generate HTML for types with individual colors
+            const typeHTML = pokemon.types.map(type => {
+                if (typeColors[type.toLowerCase()]) {
+                    return `<span style="color: ${typeColors[type.toLowerCase()]}">${type}</span>`;
+                } else {
+                    return type; // Fallback if no color is defined for the type
                 }
+            }).join(' and ');
+
+            pokemonElement.innerHTML = `
+                <h2>${pokemon.name}</h2>
+                <p>Types: ${typeHTML}</p>
+                <img src="${pokemon.sprite}" alt="error.png" class="pokemon-image">
+                <img src="${pokemon.art}" alt="${pokemon.name} official art" class="officialimage">
+            `;
+            pokemonElement.addEventListener('click', () => {
+                displayPokemonDetails(pokemon);
             });
-            return types;
-        }, []);
+            pokemonList.appendChild(pokemonElement);
+        }
 
-        const typeOptions = allTypes.map(type => `<option value="${type}">${type}</option>`).join('');
-        typeFilter.innerHTML = `<option value="">All</option>${typeOptions}`;
+        // Add navigation buttons to the page
+        const pagination = document.getElementById('pagination');
+        if (!pagination) {
+            console.error('Pagination element not found');
+            return;
+        }
+        pagination.innerHTML = '';
+
+        const prevButton = document.createElement('button');
+        prevButton.textContent = 'Previous';
+        prevButton.classList.add('prev-button'); // Add class to style in CSS
+        prevButton.addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                displayPokemonData(data, searchTerm, typesToFilter, currentPage, pokemonPerPage); // Use 'data' instead of 'pokemonData'
+            }
+        });
+        if (currentPage > 1) {
+            pagination.appendChild(prevButton);
+        } else {
+            prevButton.disabled = true;
+            prevButton.classList.add('disabled');
+            pagination.appendChild(prevButton);
+        }
+
+        const nextButton = document.createElement('button');
+        nextButton.textContent = 'Next';
+        nextButton.classList.add('next-button'); // Add class to style in CSS
+        nextButton.addEventListener('click', () => {
+            if (endIndex < filteredData.length) {
+                currentPage++;
+                displayPokemonData(data, searchTerm, typesToFilter, currentPage, pokemonPerPage); // Use 'data' instead of 'pokemonData'
+            }
+        });
+        if (endIndex < filteredData.length) {
+            pagination.appendChild(nextButton);
+        } else {
+            nextButton.disabled = true;
+            nextButton.classList.add('disabled');
+            pagination.appendChild(nextButton);
+        }
+    }
+
+    // Define the types array
+    const types = ['Normal', 'Fire', 'Water', 'Grass', 'Electric', 'Ice', 'Fighting', 'Poison', 'Ground', 'Flying', 'Psychic', 'Bug', 'Rock', 'Ghost', 'Dragon', 'Dark', 'Steel', 'Fairy'];
+
+    // Add a checkbox group to filter by types
+    const typeFilter = document.getElementById('type-filter');
+    if (!typeFilter) {
+        console.error('Type filter element not found');
+        return;
+    }
+
+      // Update the code where you create the filter labels
+      types.forEach(type => {
+        const label = document.createElement('label');
+        label.htmlFor = `type-${type}`;
+        label.textContent = type;
+
+        // Apply color to type text
+        if (typeColors[type.toLowerCase()]) {
+            const textColor = typeColors[type.toLowerCase()];
+            const backgroundColor = getComplementaryColor(textColor);
+
+            label.style.color = textColor;
+            label.style.backgroundColor = backgroundColor;
+
+            label.addEventListener('click', () => {
+                label.classList.toggle('checked');
+                typesToFilter = Array.from(typeFilter.querySelectorAll('.checked')).map(label => label.textContent.toLowerCase());
+                displayPokemonData(pokemonData, searchTerm, typesToFilter, currentPage, pokemonPerPage);
+            });
+        }
+
+        typeFilter.appendChild(label);
+    });
+
+    // Define the searchTerm variable
+    let searchTerm = '';
+
+    // Define the typesToFilter array
+    let typesToFilter = [];
+
+    // Define the currentPage and pokemonPerPage variables
+    let currentPage = 1;
+    const pokemonPerPage = 20;
+
+    // Add a search bar to the page
+    const searchBar = document.getElementById('search-bar');
+    if (!searchBar) {
+        console.error('Search bar element not found');
+        return;
+    }
+    searchBar.addEventListener('input', event => {
+        searchTerm = event.target.value.trim();
+        displayPokemonData(pokemonData, searchTerm, typesToFilter, currentPage, pokemonPerPage);
+    });
+
+    // Fetch the contents of the text file
+    fetch('pokemon_data.txt')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.text();
+        })
+        .then(data => {
+            // Split the data into an array of lines
+            const lines = data.trim().split('\n');
+
+            // Parse each line into an object
+            pokemonData = lines.map(line => {
+                const [name, types, height, weight, abilities, sprite, art] = line.split(';');
+                
+                // Handle multiple types separated by comma
+                const typeList = types.split(',').map(type => {
+                    return {
+                        type: {
+                            name: type.trim()
+                        }
+                    };
+                });
+            
+                return {
+                    name: name.trim(),
+                    types: typeList.map(type => type.type.name), // Transform types to an array of type names
+                    height: parseFloat(height.trim()),
+                    weight: parseFloat(weight.trim()),
+                    abilities: abilities.trim(),
+                    sprite: sprite.trim(),
+                    art: art.trim()
+                };
+            });
+
+            // Display the initial data on the page
+            displayPokemonData(pokemonData, searchTerm, typesToFilter, currentPage, pokemonPerPage);
+        })
+        .catch(error => {
+            console.error('Error fetching or parsing data:', error);
+        });
+
+    const modal = document.getElementById('pokemon-modal');
+    const modalContent = document.querySelector('.modal-content');
+    const closeButtons = document.querySelectorAll('.close, .close2'); // Select both close buttons
+
+    // Close the modal when the close button or outside modal area is clicked
+    window.onclick = function(event) {
+        if (event.target === modal || event.target.classList.contains('close') || event.target.classList.contains('close2')) {
+            modal.style.display = 'none';
+        }
     };
 
-    const filterPokemon = () => {
-        const searchTerm = searchInput.value.toLowerCase();
-        const selectedType = typeFilter.value.toLowerCase();
+    // Function to display the modal with Pokemon details
+    function displayPokemonDetails(pokemon) {
+        const modalDetails = document.getElementById('pokemon-details');
 
-        filteredPokemon = allPokemon.filter(pokemon =>
-            (pokemon.name.toLowerCase().includes(searchTerm) || pokemon.types.some(type => type.includes(searchTerm))) &&
-            (selectedType === '' || pokemon.types.includes(selectedType))
-        );
+        // Generate HTML for types with individual colors
+        const typeHTML = pokemon.types.map(type => {
+            if (typeColors[type.toLowerCase()]) {
+                return `<span style="color: ${typeColors[type.toLowerCase()]}">${type}</span>`;
+            } else {
+                return type; // Fallback if no color is defined for the type
+            }
+        }).join(' and ');
 
-        currentPage = 1;
-        updatePagination();
-        displayPokemon(filteredPokemon.slice(offset, offset + limit));
-    };
+        modalDetails.innerHTML = `
+            <h2>${pokemon.name}</h2>
+            <p>Types: ${typeHTML}</p>
+            <p>Height: ${pokemon.height} m</p>
+            <p>Weight: ${pokemon.weight} kg</p>
+            <p>Abilities: ${pokemon.abilities}</p>
+            <img src="${pokemon.art}" alt="${pokemon.name} official art">
+            <a href="https://pokemondb.net/pokedex/${pokemon.name.toLowerCase()}" target="_blank">Pokémon Database</a>
+        `;
+        modal.style.display = 'block'; // Display the modal
+    }
 
-    fetchAllPokemon(); // Fetch data when DOM is loaded
 });
