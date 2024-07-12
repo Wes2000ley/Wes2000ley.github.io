@@ -1,65 +1,60 @@
 const axios = require('axios');
-
 const fs = require('fs');
 
- 
-
 async function fetchPokemonData() {
-
   try {
-
-    const response = await axios.get('https://pokeapi.co/api/v2/pokemon?limit=10000');
-
+    const response = await axios.get('https://pokeapi.co/api/v2/pokemon?limit=100000');
     const data = response.data;
 
- 
-
     const outputFile = fs.createWriteStream('pokemon_data.txt');
-
-    outputFile.write('Name;Type(s);Height;Weight;Abilities;Sprite Link;Official Art Link\n');
-
- 
+    outputFile.write('Name;Type(s);Height;Weight;Abilities;Sprite Link;Official Art Link;Total Base Stats;Habitat;Color\n');
 
     for (const pokemon of data.results) {
+      try {
+        const pokemonResponse = await axios.get(pokemon.url);
+        const pokemonData = pokemonResponse.data;
 
-      const pokemonResponse = await axios.get(pokemon.url);
+        const types = pokemonData.types.map(type => type.type.name).join(',');
+        const height = `${pokemonData.height / 10} m`;
+        const weight = `${pokemonData.weight / 10} kg`;
+        const abilities = pokemonData.abilities.map(ability => ability.ability.name).join(' or ');
+        const spriteLink = pokemonData.sprites.front_default;
+        const officialArtLink = pokemonData.sprites.other['official-artwork'].front_default;
 
-      const pokemonData = pokemonResponse.data;
+        const totalBaseStats = pokemonData.stats.reduce((total, stat) => total + stat.base_stat, 0);
 
- 
+        // Fetch the species data to get the color information
+        let habitat = 'Unknown';
+        let color = 'Black';
+        try {
+          const speciesResponse = await axios.get(pokemonData.species.url);
+          const speciesData = speciesResponse.data;
 
-      const types = pokemonData.types.map(type => type.type.name).join(',');
+          // Fetch habitat
+          if (speciesData.habitat) {
+            habitat = speciesData.habitat.name;
+          }
 
-      const height = `${pokemonData.height / 10} m`;
+          // Fetch color
+          const colorResponse = await axios.get(speciesData.color.url);
+          color = colorResponse.data.name;
+        } catch (error) {
+          console.error(`Error fetching species details for ${pokemonData.name}:`, error);
+        }
 
-      const weight = `${pokemonData.weight / 10} kg`;
-
-      const abilities = pokemonData.abilities.map(ability => ability.ability.name).join(',');
-
-      const spriteLink = pokemonData.sprites.front_default;
-
-      const officialArtLink = pokemonData.sprites.other['official-artwork'].front_default;
-
- 
-
-      const outputLine = `${pokemon.name};${types};${height};${weight};${abilities};${spriteLink};${officialArtLink}\n`;
-
-      outputFile.write(outputLine);
-
+        const outputLine = `${pokemonData.name};${types};${height};${weight};${abilities};${spriteLink};${officialArtLink};${totalBaseStats};${habitat};${color}\n`;
+        outputFile.write(outputLine);
+      } catch (pokemonError) {
+        console.error(`Error fetching data for ${pokemon.name}:`, pokemonError);
+      }
     }
 
- 
-
-    outputFile.end();
-
+    outputFile.end(() => {
+      console.log('Data has been written to pokemon_data.txt');
+    });
   } catch (error) {
-
-    console.error(error);
-
+    console.error('Error fetching initial Pokémon list:', error);
   }
-
 }
-
- 
 
 fetchPokemonData();

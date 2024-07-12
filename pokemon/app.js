@@ -85,7 +85,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
             pokemonElement.innerHTML = `
                 <h2 class="pokemon-name" style="color: ${nameColor}">${pokemon.name}</h2>
-                <p>Types: ${typeHTML}</p>
+                <p>${typeHTML}</p>
                 <img src="${pokemon.sprite}" alt="error.png" class="pokemon-image">
                 <img src="${pokemon.art}" alt="${pokemon.name} official art" class="officialimage">
             `;
@@ -207,7 +207,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
             // Parse each line into an object
             pokemonData = lines.map(line => {
-                const [name, types, height, weight, abilities, sprite, art] = line.split(';');
+                const [name, types, height, weight, abilities, sprite, art, totalBaseStats, habitat, color] = line.split(';');
                 
                 // Handle multiple types separated by comma
                 const typeList = types.split(',').map(type => {
@@ -225,7 +225,10 @@ document.addEventListener("DOMContentLoaded", function() {
                     weight: parseFloat(weight.trim()),
                     abilities: abilities.trim(),
                     sprite: sprite.trim(),
-                    art: art.trim()
+                    art: art.trim(),
+                    totalBaseStats: parseInt(totalBaseStats.trim()), // Convert totalBaseStats to an integer
+                    habitat: habitat.trim(),
+                    color: color.trim() // Trim color value
                 };
             });
 
@@ -263,13 +266,15 @@ document.addEventListener("DOMContentLoaded", function() {
         const nameColor = typeColors[pokemon.types[0].toLowerCase()] || '#000';
 
         modalDetails.innerHTML = `
-            <h2 style="color: ${nameColor}">${pokemon.name}</h2>
-            <p class="Mtypes">Types: ${typeHTML}</p>
+            <div style="color: ${nameColor}">${pokemon.name}</div>
+            <p class="Mtypes">${typeHTML}</p>
             <p>Height: ${pokemon.height} m</p>
             <p>Weight: ${pokemon.weight} kg</p>
             <p>Abilities: ${pokemon.abilities}</p>
             <img src="${pokemon.art}" alt="${pokemon.name} official art">
             <a href="https://pokemondb.net/pokedex/${pokemon.name.toLowerCase()}" target="_blank" class="pdlink">Pokémon Database</a>
+            <p>Stat Total: ${pokemon.totalBaseStats}</p>
+            <p>Habitat: ${pokemon.habitat}</p>
         `;
         modal.style.display = 'block'; // Display the modal
     }
