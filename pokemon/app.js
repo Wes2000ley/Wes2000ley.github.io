@@ -84,7 +84,7 @@ document.addEventListener("DOMContentLoaded", function() {
             const nameColor = typeColors[pokemon.types[0].toLowerCase()] || '#000';
 
             pokemonElement.innerHTML = `
-                <h2 class="pokemon-name" style="color: ${nameColor}">${pokemon.name}</h2>
+                <h2 class="pokemon-name" style="color: ${pokemon.color}">${pokemon.name}</h2>
                 <p>${typeHTML}</p>
                 <img src="${pokemon.sprite}" alt="error.png" class="pokemon-image">
                 <img src="${pokemon.art}" alt="${pokemon.name} official art" class="officialimage">
@@ -266,7 +266,7 @@ document.addEventListener("DOMContentLoaded", function() {
         const nameColor = typeColors[pokemon.types[0].toLowerCase()] || '#000';
 
         modalDetails.innerHTML = `
-            <div style="color: ${nameColor}">${pokemon.name}</div>
+            <div style="color: ${pokemon.color}">${pokemon.name}</div>
             <p class="Mtypes">${typeHTML}</p>
             <p>Height: ${pokemon.height} m</p>
             <p>Weight: ${pokemon.weight} kg</p>
