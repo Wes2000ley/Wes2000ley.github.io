@@ -144,11 +144,18 @@ body {
 .pokemon-card h2{
     text-transform: capitalize;
     font-size: 200%;
+    font-weight: 800;
 }
 
 .pokemon-card p{
     text-transform: capitalize;
-    font-size: 130%;
+    font-size: 150%;
+    font-weight: 800;
+}
+
+.pokemon-image{
+    width: 50%;
+
 }
 
 #pokemon-list {
