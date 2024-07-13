@@ -3,14 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hoverable Square Links</title>
-    <link rel="stylesheet" href="wesstyles.css">
+    <title>Interactive Pokédex</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
-        <a href="OurSolarSystem/index.html" class="square-link Solar">OurSolarSystem</a>
-        <a href="FrogWeb/index.html" class="square-link Frog">Frogopedia</a>
-        <a href="pokemon/index.html" class="square-link pokemon">Pokedex</a>
+    <div class="pokedex-container">
+        <div class="pokedex-header">
+            <div class="search-bar">
+              <h1 class="pokedex-text">Pokédex</h1>
+                <input type="text" style="font-size: large;font-weight: 600;" id="search-bar" placeholder="Search Pokémon by name..." autocomplete="off">
+                <div id="type-filter" class="type-filter">
+                  <!-- Filter labels will be dynamically added here -->
+              </div>
+            </div>
+        </div>
+        <div id="pokemon-list" class="pokedex"></div>
+        <div id="pagination" class="pagination">
+            <button id="prev" disabled>Previous</button>
+            <button id="next" disabled>Next</button>
+        </div>
     </div>
+    <div id="pokemon-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">BACK</span>
+            <div id="pokemon-details"></div>
+            <img src="pokemonimg.png" class="pokemonlogo1">
+            <img src="pokemonimg.png" class="pokemonlogo2">
+        </div>
+    </div>
+    <script src="app.js"></script>
 </body>
 </html>
