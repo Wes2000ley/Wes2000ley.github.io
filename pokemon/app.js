@@ -354,10 +354,10 @@ function setupLegendaryAndMythicalFilters() {
 
         let legendaryMythicalHTML = '';
         if (pokemon.legendary) {
-            legendaryMythicalHTML += `<p>Legendary</p>`;
+            legendaryMythicalHTML += `<p class="PPP Pleg" >Legendary</p>`;
         }
         if (pokemon.mythical) {
-            legendaryMythicalHTML += `<p>Mythical</p>`;
+            legendaryMythicalHTML += `<p class= "PPP Pmyth" >Mythical</p>`;
         }
 
         modalDetails.innerHTML = `
