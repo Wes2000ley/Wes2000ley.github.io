@@ -131,6 +131,11 @@ label.legendary {
     background: gold;
 }
 
+label.legendary:hover , label.mythical:hover {
+    scale: 1.25;
+
+}
+
 .type-filter label {
     padding: 5px 10px;
     border: 1px solid #ccc;
@@ -188,6 +193,8 @@ label.legendary {
     text-align: center;
     transition: transform 0.2s;
     cursor: pointer;
+    outline: 1px black;
+    box-shadow: 0 0 0 1px black inset;
 }
 
 .pokemon-card:hover,
@@ -502,3 +509,5 @@ text-align: center;
     bottom: 10%;
     left: 5%;
 }
+
+
