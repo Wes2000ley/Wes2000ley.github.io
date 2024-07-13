@@ -90,14 +90,15 @@ document.addEventListener("DOMContentLoaded", function() {
             pokemonElement.innerHTML = `
                 <h2 class="pokemon-name" style="color: ${pokemon.color}">${pokemon.name}</h2>
                 <p>${typeHTML}</p>
-                <img src="${pokemon.sprite}" alt="error.png" class="pokemon-image">
-                <img src="${pokemon.art}" alt="${pokemon.name} official art" class="officialimage">
+                <img src="${pokemon.sprite}" alt="${pokemon.name} sprite" class="pokemon-image" onError="this.onerror=null;this.src='${pokemon.art}';">
+                <img src="${pokemon.art}" alt="${pokemon.name} official art" class="officialimage" onError="this.onerror=null;this.src='${pokemon.sprite}';">
             `;
             pokemonElement.addEventListener('click', () => {
                 displayPokemonDetails(pokemon);
             });
             pokemonList.appendChild(pokemonElement);
         }
+
 
         // Add navigation buttons to the page
         const pagination = document.getElementById('pagination');
@@ -416,7 +417,7 @@ setupLegendaryAndMythicalFilters();
             <p>Height: ${pokemon.height} m</p>
             <p>Weight: ${pokemon.weight} kg</p>
             <p>Abilities: ${pokemon.abilities}</p>
-            <img src="${pokemon.art}" alt="${pokemon.name} official art">
+            <img src="${pokemon.art}" alt="${pokemon.name} official art" onError="this.onerror=null;this.src='${pokemon.sprite}';">
             <a href="https://pokemondb.net/pokedex/${pokemon.name.toLowerCase()}" target="_blank" class="pdlink">Pokémon Database</a>
             <p>Stat Total: ${pokemon.totalBaseStats}</p>
             <p>Habitat: ${pokemon.habitat}</p>
