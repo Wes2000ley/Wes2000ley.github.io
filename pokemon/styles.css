@@ -107,7 +107,28 @@ body {
     scale: 1.1;
     border: solid black 2px;
     box-shadow:0px 0px 0px 2px black inset
+}
 
+label.mythical{
+    padding: 5px 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-weight: 600;
+    transition: background-color 0.3s, color 0.3s;
+    background: silver;
+}
+
+label.legendary {
+    padding: 5px 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-weight: 600;
+    transition: background-color 0.3s, color 0.3s;
+    background: gold;
 }
 
 .type-filter label {
@@ -124,6 +145,39 @@ body {
     scale: 1.25;
 }
 
+.checkbox-label {
+    position: relative;
+    display: inline-block;
+    margin-right: 10px; /* Adjust as needed */
+}
+
+.checkbox-label input {
+    position: absolute;
+    opacity: 0;
+}
+
+/* Custom checkbox style */
+.checkbox-custom {
+    display: inline-block;
+    width: 20px; /* Set custom checkbox dimensions */
+    height: 20px;
+    border: 1px solid #ccc; /* Border color */
+    background-color: #fff; /* Background color */
+    cursor: pointer;
+}
+.label.checkbox-label{
+    opacity: 0;
+}
+
+/* Checked state style */
+.checkbox-custom.checked {
+    background-color: #007bff; /* Example color when checked */
+}
+
+/* Label style */
+.checkbox-label span {
+    margin-left: 5px; /* Adjust spacing between checkbox and label */
+}
 
 .pokemon-card,
 .pokemon {
@@ -388,4 +442,18 @@ text-align: center;
 .prev-button,
 .next-button {
     background-color: #00b3e6;
+}
+
+.pokemonlogo1{
+    width: 100px;
+    position: absolute;
+    bottom: 10%;
+    right: 5%;
+}
+
+.pokemonlogo2{
+    width: 100px;
+    position: absolute;
+    bottom: 10%;
+    left: 5%;
 }

@@ -44,7 +44,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     // Define the displayPokemonData function
-    function displayPokemonData(data, searchTerm, typesToFilter, currentPage, pokemonPerPage) {
+    function displayPokemonData(data, searchTerm, typesToFilter, legendaryFilter, mythicalFilter, currentPage, pokemonPerPage) {
         // Filter the data based on the search term and types
         const filteredData = data.filter(pokemon => {
             const nameMatch = pokemon.name.toLowerCase().includes(searchTerm.toLowerCase());
@@ -52,7 +52,11 @@ document.addEventListener("DOMContentLoaded", function() {
             // Check if all selected types are included in the Pokémon's types
             const typeMatch = typesToFilter.length === 0 || typesToFilter.every(type => pokemon.types.includes(type.toLowerCase()));
 
-            return nameMatch && typeMatch;
+            const legendaryMatch = !legendaryFilter || pokemon.legendary;
+            const mythicalMatch = !mythicalFilter || pokemon.mythical;
+
+
+            return nameMatch && typeMatch && legendaryMatch && mythicalMatch;
         });
 
         // Calculate the index of the first and last Pokémon to display on the current page
@@ -109,7 +113,7 @@ document.addEventListener("DOMContentLoaded", function() {
         prevButton.addEventListener('click', () => {
             if (currentPage > 1) {
                 currentPage--;
-                displayPokemonData(data, searchTerm, typesToFilter, currentPage, pokemonPerPage); // Use 'data' instead of 'pokemonData'
+                displayPokemonData(data, searchTerm, typesToFilter, legendaryFilter, mythicalFilter, currentPage, pokemonPerPage); // Use 'data' instead of 'pokemonData'
             }
         });
         if (currentPage > 1) {
@@ -126,7 +130,7 @@ document.addEventListener("DOMContentLoaded", function() {
         nextButton.addEventListener('click', () => {
             if (endIndex < filteredData.length) {
                 currentPage++;
-                displayPokemonData(data, searchTerm, typesToFilter, currentPage, pokemonPerPage); // Use 'data' instead of 'pokemonData'
+                displayPokemonData(data, searchTerm, typesToFilter, legendaryFilter, mythicalFilter, currentPage, pokemonPerPage); // Use 'data' instead of 'pokemonData'
             }
         });
         if (endIndex < filteredData.length) {
@@ -165,22 +169,103 @@ document.addEventListener("DOMContentLoaded", function() {
             label.addEventListener('click', () => {
                 label.classList.toggle('checked');
                 typesToFilter = Array.from(typeFilter.querySelectorAll('.checked')).map(label => label.textContent.toLowerCase());
-                displayPokemonData(pokemonData, searchTerm, typesToFilter, currentPage, pokemonPerPage);
+                displayPokemonData(pokemonData, searchTerm, typesToFilter, legendaryFilter, mythicalFilter, currentPage, pokemonPerPage);
             });
         }
 
         typeFilter.appendChild(label);
     });
 
+  // Function to setup filters by Legendary and Mythical status
+function setupLegendaryAndMythicalFilters() {
+    // Create label for Legendary filter
+    const legendaryLabel = document.createElement('label');
+    legendaryLabel.htmlFor = 'filter-legendary';
+    legendaryLabel.classList.add('legendary');
+    legendaryLabel.textContent = 'Legendary';
+
+    legendaryLabel.addEventListener('click', () => {
+        legendaryFilter = !legendaryFilter; // Toggle the legendary filter
+        currentPage = 1; // Reset currentPage when filter changes
+        displayPokemonData(pokemonData, searchTerm, typesToFilter, legendaryFilter, mythicalFilter, currentPage, pokemonPerPage);
+
+        // Toggle rainbow effect
+        if (legendaryFilter) {
+            legendaryLabel.classList.add('click');
+            legendaryLabel.style.animation = 'rainbow 5s infinite'; // Rainbow color example
+            legendaryLabel.style.fontWeight = '900'; 
+            legendaryLabel.style.scale = '1.1';
+            legendaryLabel.style.border = 'solid black 2px';
+            legendaryLabel.style.boxShadow = '0px 0px 0px 2px black inset'
+            legendaryLabel.style.padding = '5px 10px'
+        } else {
+            legendaryLabel.classList.remove('click');
+            legendaryLabel.style.animation = ''; // Reset color
+            legendaryLabel.style.backgroundColor = '#FFD700'; // Reset background color
+            legendaryLabel.style.fontWeight = '600';
+            legendaryLabel.style.border = "1px solid #ccc";
+            legendaryLabel.style.boxShadow = '';
+            legendaryLabel.style.padding = '5px 10px'
+            legendaryLabel.style.scale = '1'
+        }
+    });
+
+    // Create label for Mythical filter
+    const mythicalLabel = document.createElement('label');
+    mythicalLabel.htmlFor = 'filter-mythical';
+    mythicalLabel.classList.add('mythical');
+    mythicalLabel.textContent = 'Mythical';
+
+    mythicalLabel.addEventListener('click', () => {
+        mythicalFilter = !mythicalFilter; // Toggle the mythical filter
+        currentPage = 1; // Reset currentPage when filter changes
+        displayPokemonData(pokemonData, searchTerm, typesToFilter, legendaryFilter, mythicalFilter, currentPage, pokemonPerPage);
+
+        // Toggle rainbow effect
+        if (mythicalFilter) {
+            mythicalLabel.classList.add('click');
+            mythicalLabel.style.animation = 'rainbow 5s infinite'; // Rainbow color example
+            mythicalLabel.style.fontWeight = '900'; 
+            mythicalLabel.style.scale = '1.1';
+            mythicalLabel.style.border = 'solid black 2px';
+            mythicalLabel.style.boxShadow = '0px 0px 0px 2px black inset'
+            mythicalLabelLabel.style.padding = '5px 10px'
+        } else {
+            mythicalLabel.classList.remove('click');
+            mythicalLabel.style.animation = ''; // Reset color
+            mythicalLabel.style.backgroundColor = '#C0C0C0'; // Reset background color
+            mythicalLabel.style.fontWeight = '600';
+            mythicalLabel.style.border = "1px solid #ccc";
+            mythicalLabel.style.boxShadow = '';
+            mythicalLabel.style.padding = '5px 10px'
+            mythicalLabel.style.scale = '1'
+        }
+    });
+
+    // Append labels to typeFilter element
+    const typeFilter = document.getElementById('type-filter');
+    if (!typeFilter) {
+        console.error('Type filter element not found');
+        return;
+    }
+    typeFilter.appendChild(legendaryLabel);
+    typeFilter.appendChild(mythicalLabel);
+}
     // Define the searchTerm variable
     let searchTerm = '';
 
     // Define the typesToFilter array
     let typesToFilter = [];
 
+    let legendaryFilter = false; // Define legendaryFilter boolean
+    let mythicalFilter = false; // Define mythicalFilter boolean
+
     // Define the currentPage and pokemonPerPage variables
     let currentPage = 1;
     const pokemonPerPage = 20;
+
+    // Call setup function after DOM content is loaded
+    setupLegendaryAndMythicalFilters(); 
 
     // Add a search bar to the page
     const searchBar = document.getElementById('search-bar');
@@ -190,7 +275,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }
     searchBar.addEventListener('input', event => {
         searchTerm = event.target.value.trim();
-        displayPokemonData(pokemonData, searchTerm, typesToFilter, currentPage, pokemonPerPage);
+        displayPokemonData(pokemonData, searchTerm, typesToFilter, legendaryFilter, mythicalFilter, currentPage, pokemonPerPage);
     });
 
     // Fetch the contents of the text file
@@ -207,7 +292,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
             // Parse each line into an object
             pokemonData = lines.map(line => {
-                const [name, types, height, weight, abilities, sprite, art, totalBaseStats, habitat, color] = line.split(';');
+                const [name, types, height, weight, abilities, sprite, art, totalBaseStats, habitat, color, legendary, mythical] = line.split(';');
                 
                 // Handle multiple types separated by comma
                 const typeList = types.split(',').map(type => {
@@ -228,12 +313,14 @@ document.addEventListener("DOMContentLoaded", function() {
                     art: art.trim(),
                     totalBaseStats: parseInt(totalBaseStats.trim()), // Convert totalBaseStats to an integer
                     habitat: habitat.trim(),
-                    color: color.trim() // Trim color value
+                    color: color.trim(), // Trim color value
+                    legendary: legendary === 'true',
+                    mythical: mythical === 'true'
                 };
             });
 
             // Display the initial data on the page
-            displayPokemonData(pokemonData, searchTerm, typesToFilter, currentPage, pokemonPerPage);
+            displayPokemonData(pokemonData, searchTerm, typesToFilter, legendaryFilter, mythicalFilter, currentPage, pokemonPerPage);
         })
         .catch(error => {
             console.error('Error fetching or parsing data:', error);
@@ -265,6 +352,14 @@ document.addEventListener("DOMContentLoaded", function() {
 
         const nameColor = typeColors[pokemon.types[0].toLowerCase()] || '#000';
 
+        let legendaryMythicalHTML = '';
+        if (pokemon.legendary) {
+            legendaryMythicalHTML += `<p>Legendary</p>`;
+        }
+        if (pokemon.mythical) {
+            legendaryMythicalHTML += `<p>Mythical</p>`;
+        }
+
         modalDetails.innerHTML = `
             <div style="color: ${pokemon.color}">${pokemon.name}</div>
             <p class="Mtypes">${typeHTML}</p>
@@ -275,6 +370,7 @@ document.addEventListener("DOMContentLoaded", function() {
             <a href="https://pokemondb.net/pokedex/${pokemon.name.toLowerCase()}" target="_blank" class="pdlink">Pokémon Database</a>
             <p>Stat Total: ${pokemon.totalBaseStats}</p>
             <p>Habitat: ${pokemon.habitat}</p>
+            ${legendaryMythicalHTML}
         `;
         modal.style.display = 'block'; // Display the modal
     }
