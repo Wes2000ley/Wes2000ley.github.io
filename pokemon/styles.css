@@ -370,6 +370,7 @@ button:hover:enabled {
     justify-content:center;
     align-items: center;
     margin-bottom: 10px;
+    height: 50px;
 }
 
 
@@ -491,6 +492,7 @@ button:hover:enabled {
 
 span.close{
 font-size: 150%;
+justify-content: center;
 }
 
 .close {
@@ -502,6 +504,8 @@ font-size: 150%;
     border-radius: 5px;
     padding: 5px 10px;
     text-align: center;
+    display: block;
+    margin-top: 10px;
 }
 
 .close:hover,
@@ -672,6 +676,8 @@ p {
     border-radius: 5px;
     cursor: pointer;
 }
+
+
 
 /* Mobile Responsive Styles */
 @media only screen and (max-width: 768px) {
