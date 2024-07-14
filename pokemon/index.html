@@ -9,28 +9,46 @@
 <body>
     <div class="pokedex-container">
         <div class="pokedex-header">
-            <div class="search-bar">
-              <h1 id="pokedex" class="pokedex-text">Pokédex</h1>
-                <input type="text" style="font-size: large;font-weight: 600;" id="search-bar" placeholder="Search Pokémon by name..." autocomplete="off">
-                <div id="type-filter" class="type-filter">
-                  <!-- Filter labels will be dynamically added here -->
-              </div>
-            </div>
+            <h1 id="pokedex" class="pokedex-text">Wesley's Pokédex</h1>
+            <input type="text" id="search-bar" placeholder="Search Pokémon by name..." autocomplete="off">
+            <div id="type-filter" class="type-filter"></div>
+        </div>
+        <button id="toggle-sliders">Toggle Stat Sliders</button>
+        <div id="slider-filters" class="hidden">
+            <label>HP: <input type="range" id="hp-slider" min="0" max="255" value="0" step="1"><span id="hp-value">0</span></label>
+            <label>Attack: <input type="range" id="attack-slider" min="0" max="255" value="0" step="1"><span id="attack-value">0</span></label>
+            <label>Defense: <input type="range" id="defense-slider" min="0" max="255" value="0" step="1"><span id="defense-value">0</span></label>
+            <label>Special Attack: <input type="range" id="special-attack-slider" min="0" max="255" value="0" step="1"><span id="special-attack-value">0</span></label>
+            <label>Special Defense: <input type="range" id="special-defense-slider" min="0" max="255" value="0" step="1"><span id="special-defense-value">0</span></label>
+            <label>Speed: <input type="range" id="speed-slider" min="0" max="255" value="0" step="1"><span id="speed-value">0</span></label>
+            <label>Total Base Stats: <input type="range" id="total-base-stats-slider" min="0" max="720" value="0" step="1"><span id="total-base-stats-value">0</span></label>
         </div>
         <div id="pokemon-list" class="pokedex"></div>
-        <div id="pagination" class="pagination">
-            <button id="prev" disabled>Previous</button>
-            <button id="next" disabled>Next</button>
-        </div>
+        <div id="pagination" class="pagination"></div>
     </div>
+
     <div id="pokemon-modal" class="modal">
         <div class="modal-content">
-            <span class="close">BACK</span>
-            <div id="pokemon-details"></div>
-            <img src="pokemonimg.png" class="pokemonlogo1">
-            <img src="pokemonimg.png" class="pokemonlogo2">
+            <div class="pokedex-outer">
+                <div class="pokedex-left">
+                    <div class="screen-header">
+                        <h2 class="pokemon-name" id="modal-pokemon-name"></h2>
+                        <span class="close">BACK</span>
+                    </div>
+                    <div class="pokemon-image-container">
+                        <img src="" id="pokemon-image" alt="Pokemon Image">
+                    </div>
+                    <div class="pokemon-stats" id="pokemon-stats"></div>
+                    <div class="pokemon-effectiveness" id="pokemon-effectiveness"></div>
+                </div>
+                <div class="pokedex-right">
+                    <div class="pokemon-details" id="pokemon-details"></div>
+                </div>
+            </div>
         </div>
     </div>
+
+    <div id="loading" class="loading" style="display: none;">Loading...</div>
     <script src="app.js"></script>
 </body>
 </html>
