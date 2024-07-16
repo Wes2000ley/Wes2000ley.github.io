@@ -888,7 +888,7 @@ body.dark-mode #slider-filters label  {
 
 /* Base styles for sliders */
 input[type="range"] {
-    -webkit-appearance: none;
+    appearance: none;
     width: 100%;
     height: 8px;
     border-radius: 5px;
