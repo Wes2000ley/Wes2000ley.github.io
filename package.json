@@ -1,11 +1,16 @@
 {
-  "name": "package.json",
+  "name": "your-project-name",
   "version": "1.0.0",
-  "description": "Wesley Atwell's website portfolio",
-  "main": "config.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js",
+    "build": "react-scripts build", // or "gatsby build" or "next build" or whatever build command your project uses
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
   },
-  "author": "",
-  "license": "ISC"
+  "dependencies": {
+    // your dependencies
+  },
+  "devDependencies": {
+    // your devDependencies
+  }
 }
