@@ -1,18 +1,18 @@
 {
-  "name": "your-project-name",
+  "name": "Wesley Atwell.com",
   "version": "1.0.0",
-  "description": "Your project description",
+  "description": "Wesley Atwells website",
   "main": "index.js",
   "scripts": {
-    "start": "live-server --open=src", // for local development
-    "build": "echo 'No build script defined'", // placeholder if no build steps are needed
-    "deploy": "gh-pages -d src" // deployment script
+    "start": "live-server --open=src",
+    "build": "echo 'No build script defined'",
+    "deploy": "gh-pages -d src"
   },
-  "author": "Your Name",
+  "author": "Wesley Atwell",
   "license": "MIT",
   "devDependencies": {
-    "gh-pages": "^4.0.0", // ensure this is installed if using for deployment
-    "live-server": "^1.2.1" // for local development server
+    "gh-pages": "^4.0.0",
+    "live-server": "^1.2.1"
   },
   "dependencies": {}
 }
