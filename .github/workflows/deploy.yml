@@ -32,6 +32,11 @@ jobs:
           FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
           FIREBASE_MEASUREMENT_ID: ${{ secrets.FIREBASE_MEASUREMENT_ID }}
 
+      - name: Configure Git
+        run: |
+         git config --global user.email "you@example.com"
+         git config --global user.name "Your Name"
+
       - name: Deploy to GitHub Pages
         run: npm run deploy
         env:
