@@ -6,7 +6,7 @@
   "scripts": {
     "start": "live-server --open=src",
     "build": "echo 'No build script defined'",
-    "deploy": "gh-pages -d ." 
+    "deploy": "gh-pages -d . -t $GITHUB_TOKEN" // Add the token flag 
   },
   "author": "Wesley Atwell",
   "license": "MIT",
