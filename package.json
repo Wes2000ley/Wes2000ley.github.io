@@ -1,12 +1,12 @@
 {
   "name": "Wesley Atwell.com",
   "version": "1.0.0",
-  "description": "Wesley Atwells website",
+  "description": "Your project description",
   "main": "index.js",
   "scripts": {
     "start": "live-server --open=src",
     "build": "echo 'No build script defined'",
-    "deploy": "gh-pages -d src"
+    "deploy": "gh-pages -d ."  // Deploy all files from the root directory
   },
   "author": "Wesley Atwell",
   "license": "MIT",
