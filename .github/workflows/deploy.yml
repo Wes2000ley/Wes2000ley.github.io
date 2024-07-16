@@ -18,10 +18,7 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install dependencies
-        run: npm install
-
-      - name: Build the project
+      - name: Create .env file
         run: |
           echo "FIREBASE_API_KEY=${{ secrets.FIREBASE_API_KEY }}" >> .env
           echo "FIREBASE_AUTH_DOMAIN=${{ secrets.FIREBASE_AUTH_DOMAIN }}" >> .env
@@ -30,10 +27,18 @@ jobs:
           echo "FIREBASE_MESSAGING_SENDER_ID=${{ secrets.FIREBASE_MESSAGING_SENDER_ID }}" >> .env
           echo "FIREBASE_APP_ID=${{ secrets.FIREBASE_APP_ID }}" >> .env
           echo "FIREBASE_MEASUREMENT_ID=${{ secrets.FIREBASE_MEASUREMENT_ID }}" >> .env
-          npm run build
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build the project
+        run: npm run build
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
+
+      - name: Print Node.js version
+        run: n
