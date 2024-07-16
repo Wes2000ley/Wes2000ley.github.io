@@ -756,4 +756,110 @@ p {
     }
 }
 
+body.dark-mode {
+    background: linear-gradient(to bottom, #121212, #333);
+}
 
+
+.dark-mode   {
+    background-color: #555;
+}
+
+.dark-mode-toggle {
+    padding: 10px 20px;
+    background-color: #333;
+    color: #ddd;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: bold;
+}
+
+.dark-mode-toggle:hover {
+    background-color: #444;
+}
+
+.pagination {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.pagination-button {
+    padding: 10px;
+    background-color: #db3c36;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+}
+
+.pagination-button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.pagination-select {
+    padding: 10px;
+    font-size: 1em;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+}
+
+.pokemon-card, .modal-content, .pagination-button, .search-suggestion-item {
+    transition: all 0.3s ease;
+}
+
+.pokemon-card:hover, .search-suggestion-item:hover, .pagination-button:hover {
+    transform: scale(1.05);
+}
+
+.modal {
+    transition: opacity 0.5s ease;
+}
+
+.modal-content {
+    transform: translateY(-50px);
+    transition: transform 0.5s ease;
+}
+
+.modal.show .modal-content {
+    transform: translateY(0);
+}
+
+.dark-mode-toggle {
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.dark-mode-toggle:hover {
+    background-color: #444;
+    color: #fff;
+}
+
+#auth-forms {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #fff;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    border-radius: 10px;
+}
+
+#login-register button, #auth-forms button {
+    margin: 5px;
+    padding: 10px 20px;
+    background: #db3c36;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+}
+
+#login-register button:hover, #auth-forms button:hover {
+    background: #ff6347;
+}

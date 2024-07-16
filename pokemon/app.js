@@ -1,3 +1,18 @@
+// Firebase configuration
+var firebaseConfig = {
+    apiKey: "AIzaSyCMsDX7bpD0TBGjVC-91L-sInayAOjSDuU",
+    authDomain: "wesley-s-pokedex.firebaseapp.com",
+    projectId: "wesley-s-pokedex",
+    storageBucket: "wesley-s-pokedex.appspot.com",
+    messagingSenderId: "531675000016",
+    appId: "1:531675000016:web:f25f1de3cae504b03542d5",
+    measurementId: "G-TK8PFTVE00"
+  };
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
 document.addEventListener("DOMContentLoaded", function() {
     let pokemonData;
 
@@ -86,7 +101,31 @@ document.addEventListener("DOMContentLoaded", function() {
         sliderFilters.classList.toggle('hidden');
     });
 
-    function displayPokemonData(data, searchTerm, typesToFilter, legendaryFilter, mythicalFilter, currentPage, pokemonPerPage) {
+    let currentPage = 1;
+    const pokemonPerPage = 20;
+
+    function updatePaginationControls(filteredData) {
+        const totalPages = Math.ceil(filteredData.length / pokemonPerPage);
+        const pageSelect = document.getElementById('page-select');
+        pageSelect.innerHTML = '';
+
+        for (let i = 1; i <= totalPages; i++) {
+            const option = document.createElement('option');
+            option.value = i;
+            option.textContent = `Page ${i}`;
+            if (i === currentPage) {
+                option.selected = true;
+            }
+            pageSelect.appendChild(option);
+        }
+
+        document.getElementById('first-page').disabled = currentPage === 1;
+        document.getElementById('prev-page').disabled = currentPage === 1;
+        document.getElementById('next-page').disabled = currentPage === totalPages;
+        document.getElementById('last-page').disabled = currentPage === totalPages;
+    }
+
+    function displayPokemonData(data, searchTerm, typesToFilter, legendaryFilter, mythicalFilter) {
         const hpMin = parseInt(hpSlider.value);
         const attackMin = parseInt(attackSlider.value);
         const defenseMin = parseInt(defenseSlider.value);
@@ -94,8 +133,8 @@ document.addEventListener("DOMContentLoaded", function() {
         const specialDefenseMin = parseInt(specialDefenseSlider.value);
         const speedMin = parseInt(speedSlider.value);
         const totalBaseStatsMin = parseInt(totalBaseStatsSlider.value);
-
-        const filteredData = data.filter(pokemon => {
+    
+        filteredData = data.filter(pokemon => {
             const nameMatch = pokemon.name.toLowerCase().includes(searchTerm.toLowerCase());
             const typeMatch = typesToFilter.length === 0 || typesToFilter.every(type => pokemon.types.includes(type.toLowerCase()));
             const legendaryMatch = !legendaryFilter || pokemon.legendary;
@@ -107,23 +146,20 @@ document.addEventListener("DOMContentLoaded", function() {
             const specialDefenseMatch = pokemon.stats.specialDefense >= specialDefenseMin;
             const speedMatch = pokemon.stats.speed >= speedMin;
             const totalBaseStatsMatch = pokemon.totalBaseStats >= totalBaseStatsMin;
-
+    
             return nameMatch && typeMatch && legendaryMatch && mythicalMatch && hpMatch && attackMatch && defenseMatch && specialAttackMatch && specialDefenseMatch && speedMatch && totalBaseStatsMatch;
         });
-
+    
         const startIndex = (currentPage - 1) * pokemonPerPage;
         const endIndex = Math.min(startIndex + pokemonPerPage, filteredData.length);
         const pokemonList = document.getElementById('pokemon-list');
-        if (!pokemonList) {
-            console.error('Pokemon list element not found');
-            return;
-        }
         pokemonList.innerHTML = '';
+    
         for (let i = startIndex; i < endIndex; i++) {
             const pokemon = filteredData[i];
             const pokemonElement = document.createElement('div');
             pokemonElement.classList.add('pokemon-card');
-
+    
             const typeHTML = pokemon.types.map(type => {
                 if (typeColors[type.toLowerCase()]) {
                     return `<span style="color: ${typeColors[type.toLowerCase()]}">${type}</span>`;
@@ -131,9 +167,9 @@ document.addEventListener("DOMContentLoaded", function() {
                     return type;
                 }
             }).join(' | ');
-
+    
             const nameColor = typeColors[pokemon.types[0].toLowerCase()] || '#000';
-
+    
             if (pokemon.legendary || pokemon.mythical) {
                 pokemonElement.innerHTML = `
                     <h2 class="pokemon-name" style="background: linear-gradient(to right, #6666ff, #0099ff , #00ff00, #ff3399, #6666ff);
@@ -159,50 +195,39 @@ document.addEventListener("DOMContentLoaded", function() {
             });
             pokemonList.appendChild(pokemonElement);
         }
-
-        const pagination = document.getElementById('pagination');
-        if (!pagination) {
-            console.error('Pagination element not found');
-            return;
-        }
-        pagination.innerHTML = '';
-
-        const prevButton = document.createElement('button');
-        prevButton.textContent = 'Previous';
-        prevButton.classList.add('prev-button');
-        prevButton.addEventListener('click', () => {
-            if (currentPage > 1) {
-                currentPage--;
-                displayPokemonData(data, searchTerm, typesToFilter, legendaryFilter, mythicalFilter, currentPage, pokemonPerPage);
-                window.scrollTo(0, 0);
-            }
-        });
-        if (currentPage > 1) {
-            pagination.appendChild(prevButton);
-        } else {
-            prevButton.disabled = true;
-            prevButton.classList.add('disabled');
-            pagination.appendChild(prevButton);
-        }
-
-        const nextButton = document.createElement('button');
-        nextButton.textContent = 'Next';
-        nextButton.classList.add('next-button');
-        nextButton.addEventListener('click', () => {
-            if (endIndex < filteredData.length) {
-                currentPage++;
-                displayPokemonData(data, searchTerm, typesToFilter, legendaryFilter, mythicalFilter, currentPage, pokemonPerPage);
-                window.scrollTo(0, 0);
-            }
-        });
-        if (endIndex < filteredData.length) {
-            pagination.appendChild(nextButton);
-        } else {
-            nextButton.disabled = true;
-            nextButton.classList.add('disabled');
-            pagination.appendChild(nextButton);
-        }
+    
+        updatePaginationControls(filteredData);
     }
+    document.getElementById('first-page').addEventListener('click', () => {
+        currentPage = 1;
+        displayPokemonData(pokemonData, searchTerm, typesToFilter, legendaryFilter, mythicalFilter);
+    });
+
+    document.getElementById('prev-page').addEventListener('click', () => {
+        if (currentPage > 1) {
+            currentPage--;
+            displayPokemonData(pokemonData, searchTerm, typesToFilter, legendaryFilter, mythicalFilter);
+        }
+    });
+
+    document.getElementById('next-page').addEventListener('click', () => {
+    const totalPages = Math.ceil(filteredData.length / pokemonPerPage);
+    if (currentPage < totalPages) {
+        currentPage++;
+        displayPokemonData(pokemonData, searchTerm, typesToFilter, legendaryFilter, mythicalFilter);
+    }
+});
+
+document.getElementById('last-page').addEventListener('click', () => {
+    const totalPages = Math.ceil(filteredData.length / pokemonPerPage);
+    currentPage = totalPages;
+    displayPokemonData(pokemonData, searchTerm, typesToFilter, legendaryFilter, mythicalFilter);
+});
+
+    document.getElementById('page-select').addEventListener('change', (event) => {
+        currentPage = parseInt(event.target.value);
+        displayPokemonData(pokemonData, searchTerm, typesToFilter, legendaryFilter, mythicalFilter);
+    });
 
     const types = ['Normal', 'Fire', 'Water', 'Grass', 'Electric', 'Ice', 'Fighting', 'Poison', 'Ground', 'Flying', 'Psychic', 'Bug', 'Rock', 'Ghost', 'Dragon', 'Dark', 'Steel', 'Fairy'];
 
@@ -216,8 +241,6 @@ document.addEventListener("DOMContentLoaded", function() {
     let typesToFilter = [];
     let legendaryFilter = false;
     let mythicalFilter = false;
-    let currentPage = 1;
-    const pokemonPerPage = 20;
 
     function setupLegendaryAndMythicalFilters() {
         const legendaryLabel = document.createElement('label');
@@ -228,7 +251,7 @@ document.addEventListener("DOMContentLoaded", function() {
         legendaryLabel.addEventListener('click', () => {
             legendaryFilter = !legendaryFilter;
             currentPage = 1;
-            displayPokemonData(pokemonData, searchTerm, typesToFilter, legendaryFilter, mythicalFilter, currentPage, pokemonPerPage);
+            displayPokemonData(pokemonData, searchTerm, typesToFilter, legendaryFilter, mythicalFilter);
             if (legendaryFilter) {
                 legendaryLabel.classList.add('click');
                 legendaryLabel.style.animation = 'rainbow 5s infinite';
@@ -257,7 +280,7 @@ document.addEventListener("DOMContentLoaded", function() {
         mythicalLabel.addEventListener('click', () => {
             mythicalFilter = !mythicalFilter;
             currentPage = 1;
-            displayPokemonData(pokemonData, searchTerm, typesToFilter, legendaryFilter, mythicalFilter, currentPage, pokemonPerPage);
+            displayPokemonData(pokemonData, searchTerm, typesToFilter, legendaryFilter, mythicalFilter);
             if (mythicalFilter) {
                 mythicalLabel.classList.add('click');
                 mythicalLabel.style.animation = 'rainbow 5s infinite';
@@ -296,7 +319,7 @@ document.addEventListener("DOMContentLoaded", function() {
             label.addEventListener('click', () => {
                 label.classList.toggle('checked');
                 typesToFilter = Array.from(typeFilter.querySelectorAll('.checked')).map(label => label.textContent.toLowerCase());
-                displayPokemonData(pokemonData, searchTerm, typesToFilter, legendaryFilter, mythicalFilter, currentPage, pokemonPerPage);
+                displayPokemonData(pokemonData, searchTerm, typesToFilter, legendaryFilter, mythicalFilter);
             });
         }
 
@@ -316,7 +339,7 @@ document.addEventListener("DOMContentLoaded", function() {
         typesToFilter = [];
         currentPage = 1;
         resetSliders();
-        displayPokemonData(pokemonData, searchTerm, typesToFilter, legendaryFilter, mythicalFilter, currentPage, pokemonPerPage);
+        displayPokemonData(pokemonData, searchTerm, typesToFilter, legendaryFilter, mythicalFilter);
 
         document.querySelector('.legendary').classList.remove('click');
         document.querySelector('.legendary').style.animation = '';
@@ -348,7 +371,7 @@ document.addEventListener("DOMContentLoaded", function() {
             label.style.backgroundColor = getComplementaryColor(typeColors[label.textContent.toLowerCase()]);
         });
 
-        displayPokemonData(pokemonData, searchTerm, typesToFilter, legendaryFilter, mythicalFilter, currentPage, pokemonPerPage);
+        displayPokemonData(pokemonData, searchTerm, typesToFilter, legendaryFilter, mythicalFilter);
     });
 
     setupLegendaryAndMythicalFilters();
@@ -360,7 +383,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }
     searchBar.addEventListener('input', event => {
         searchTerm = event.target.value.trim();
-        displayPokemonData(pokemonData, searchTerm, typesToFilter, legendaryFilter, mythicalFilter, currentPage, pokemonPerPage);
+        displayPokemonData(pokemonData, searchTerm, typesToFilter, legendaryFilter, mythicalFilter);
     });
 
     fetch('pokemon_data.txt')
@@ -415,7 +438,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 };
             });
 
-            displayPokemonData(pokemonData, searchTerm, typesToFilter, legendaryFilter, mythicalFilter, currentPage, pokemonPerPage);
+            displayPokemonData(pokemonData, searchTerm, typesToFilter, legendaryFilter, mythicalFilter);
         })
         .catch(error => {
             console.error('Error fetching or parsing data:', error);
@@ -427,6 +450,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     window.onclick = function(event) {
         if (event.target === modal || event.target.classList.contains('close') || event.target.classList.contains('close2')) {
+            modal.classList.remove('show'); // Remove the animation class
             modal.style.display = 'none';
         }
     };
@@ -435,7 +459,7 @@ document.addEventListener("DOMContentLoaded", function() {
         const modalDetails = document.getElementById('pokemon-details');
         const modalStats = document.getElementById('pokemon-stats');
         const modalEffects = document.getElementById('pokemon-effectiveness');
-
+    
         const typeHTML = pokemon.types.map(type => {
             if (typeColors[type.toLowerCase()]) {
                 return `<span style="color: ${typeColors[type.toLowerCase()]}">${type}</span>`;
@@ -443,7 +467,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 return type; // Fallback if no color is defined for the type
             }
         }).join(' | ');
-
+    
         let legendaryMythicalHTML = '';
         if (pokemon.legendary) {
             legendaryMythicalHTML += `<p class="PPP Pleg">Legendary</p>`;
@@ -451,8 +475,7 @@ document.addEventListener("DOMContentLoaded", function() {
         if (pokemon.mythical) {
             legendaryMythicalHTML += `<p class="PPP Pmyth">Mythical</p>`;
         }
-
-
+    
         document.getElementById('pokemon-image').src = pokemon.sprite;
         if (pokemon.legendary || pokemon.mythical) {
             modalDetails.innerHTML = `
@@ -470,117 +493,249 @@ document.addEventListener("DOMContentLoaded", function() {
             <a href="https://pokemondb.net/pokedex/${pokemon.name.toLowerCase()}" target="_blank" class="pdlink">Pokémon Database</a>
             <p>Habitat: ${pokemon.habitat}</p>
             <p>Abilities: ${pokemon.abilities}</p>
-
-        `;}
-        else{ if(pokemon.color === 'white'){modalDetails.innerHTML = `
-            <div style="color: black">${pokemon.name}</div>
-            <p class="Mtypes">${typeHTML}</p>
-            ${legendaryMythicalHTML}
-            <p class='height'>Height: ${pokemon.height} m</p>
-            <p class='weight'>Weight: ${pokemon.weight} kg</p>
-            <img src="${pokemon.art}" alt="${pokemon.name} official art" onError="this.onerror=null;this.src='${pokemon.sprite}';">
-            <a href="https://pokemondb.net/pokedex/${pokemon.name.toLowerCase()}" target="_blank" class="pdlink">Pokémon Database</a>
-            <p>Habitat: ${pokemon.habitat}</p>
-            <p>Abilities: ${pokemon.abilities}</p>
-
-        `;}else{
-            modalDetails.innerHTML = `
-            <div style="color: ${pokemon.color}">${pokemon.name}</div>
-            <p class="Mtypes">${typeHTML}</p>
-            ${legendaryMythicalHTML}
-            <p class='height'>Height: ${pokemon.height} m</p>
-            <p class='weight'>Weight: ${pokemon.weight} kg</p>
-            <img src="${pokemon.art}" alt="${pokemon.name} official art" onError="this.onerror=null;this.src='${pokemon.sprite}';">
-            <a href="https://pokemondb.net/pokedex/${pokemon.name.toLowerCase()}" target="_blank" class="pdlink">Pokémon Database</a>
-            <p>Habitat: ${pokemon.habitat}</p>
-            <p>Abilities: ${pokemon.abilities}</p>
-        `;}}
-
+    
+        `;} else { 
+            if(pokemon.color === 'white'){ 
+                modalDetails.innerHTML = `
+                <div style="color: black">${pokemon.name}</div>
+                <p class="Mtypes">${typeHTML}</p>
+                ${legendaryMythicalHTML}
+                <p class='height'>Height: ${pokemon.height} m</p>
+                <p class='weight'>Weight: ${pokemon.weight} kg</p>
+                <img src="${pokemon.art}" alt="${pokemon.name} official art" onError="this.onerror=null;this.src='${pokemon.sprite}';">
+                <a href="https://pokemondb.net/pokedex/${pokemon.name.toLowerCase()}" target="_blank" class="pdlink">Pokémon Database</a>
+                <p>Habitat: ${pokemon.habitat}</p>
+                <p>Abilities: ${pokemon.abilities}</p>
+            `;} else {
+                modalDetails.innerHTML = `
+                <div style="color: ${pokemon.color}">${pokemon.name}</div>
+                <p class="Mtypes">${typeHTML}</p>
+                ${legendaryMythicalHTML}
+                <p class='height'>Height: ${pokemon.height} m</p>
+                <p class='weight'>Weight: ${pokemon.weight} kg</p>
+                <img src="${pokemon.art}" alt="${pokemon.name} official art" onError="this.onerror=null;this.src='${pokemon.sprite}';">
+                <a href="https://pokemondb.net/pokedex/${pokemon.name.toLowerCase()}" target="_blank" class="pdlink">Pokémon Database</a>
+                <p>Habitat: ${pokemon.habitat}</p>
+                <p>Abilities: ${pokemon.abilities}</p>
+            `;} 
+        }
+    
         modalStats.innerHTML = `
-         <div class="pokemon-stat-bar">
-            <div class="stat-bar">
-                <div class="stat-bar-inner stat-hp" style="width: ${Math.min(pokemon.stats.hp / 150 * 100, 100)}%;"></div>
-                <div class="stat-text">
-                    <span class="stat-label">HP:</span>
-                    <span class="stat-value">${pokemon.stats.hp}</span>
+            <div class="pokemon-stat-bar">
+                <div class="stat-bar">
+                    <div class="stat-bar-inner stat-hp" style="width: ${Math.min(pokemon.stats.hp / 150 * 100, 100)}%;"></div>
+                    <div class="stat-text">
+                        <span class="stat-label">HP:</span>
+                        <span class="stat-value">${pokemon.stats.hp}</span>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="pokemon-stat-bar">
-            <div class="stat-bar">
-                <div class="stat-bar-inner stat-attack" style="width: ${Math.min(pokemon.stats.attack / 150 * 100, 100)}%;"></div>
-                <div class="stat-text">
-                    <span class="stat-label">Attack:</span>
-                    <span class="stat-value">${pokemon.stats.attack}</span>
+            <div class="pokemon-stat-bar">
+                <div class="stat-bar">
+                    <div class="stat-bar-inner stat-attack" style="width: ${Math.min(pokemon.stats.attack / 150 * 100, 100)}%;"></div>
+                    <div class="stat-text">
+                        <span class="stat-label">Attack:</span>
+                        <span class="stat-value">${pokemon.stats.attack}</span>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="pokemon-stat-bar">
-            <div class="stat-bar">
-                <div class="stat-bar-inner stat-defense" style="width: ${Math.min(pokemon.stats.defense / 150 * 100, 100)}%;"></div>
-                <div class="stat-text">
-                    <span class="stat-label">Defense:</span>
-                    <span class="stat-value">${pokemon.stats.defense}</span>
+            <div class="pokemon-stat-bar">
+                <div class="stat-bar">
+                    <div class="stat-bar-inner stat-defense" style="width: ${Math.min(pokemon.stats.defense / 150 * 100, 100)}%;"></div>
+                    <div class="stat-text">
+                        <span class="stat-label">Defense:</span>
+                        <span class="stat-value">${pokemon.stats.defense}</span>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="pokemon-stat-bar">
-            <div class="stat-bar">
-                <div class="stat-bar-inner stat-special-attack" style="width: ${Math.min(pokemon.stats.specialAttack / 150 * 100, 100)}%;"></div>
-                <div class="stat-text">
-                    <span class="stat-label">Sp. Atk:</span>
-                    <span class="stat-value">${pokemon.stats.specialAttack}</span>
+            <div class="pokemon-stat-bar">
+                <div class="stat-bar">
+                    <div class="stat-bar-inner stat-special-attack" style="width: ${Math.min(pokemon.stats.specialAttack / 150 * 100, 100)}%;"></div>
+                    <div class="stat-text">
+                        <span class="stat-label">Sp. Atk:</span>
+                        <span class="stat-value">${pokemon.stats.specialAttack}</span>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="pokemon-stat-bar">
-            <div class="stat-bar">
-                <div class="stat-bar-inner stat-special-defense" style="width: ${Math.min(pokemon.stats.specialDefense / 150 * 100, 100)}%;"></div>
-                <div class="stat-text">
-                    <span class="stat-label">Sp. Def:</span>
-                    <span class="stat-value">${pokemon.stats.specialDefense}</span>
+            <div class="pokemon-stat-bar">
+                <div class="stat-bar">
+                    <div class="stat-bar-inner stat-special-defense" style="width: ${Math.min(pokemon.stats.specialDefense / 150 * 100, 100)}%;"></div>
+                    <div class="stat-text">
+                        <span class="stat-label">Sp. Def:</span>
+                        <span class="stat-value">${pokemon.stats.specialDefense}</span>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="pokemon-stat-bar">
-            <div class="stat-bar">
-                <div class="stat-bar-inner stat-speed" style="width: ${Math.min(pokemon.stats.speed / 150 * 100, 100)}%;"></div>
-                <div class="stat-text">
-                    <span class="stat-label">Speed:</span>
-                    <span class="stat-value">${pokemon.stats.speed}</span>
+            <div class="pokemon-stat-bar">
+                <div class="stat-bar">
+                    <div class="stat-bar-inner stat-speed" style="width: ${Math.min(pokemon.stats.speed / 150 * 100, 100)}%;"></div>
+                    <div class="stat-text">
+                        <span class="stat-label">Speed:</span>
+                        <span class="stat-value">${pokemon.stats.speed}</span>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="pokemon-stat-bar">
-            <div class="stat-bar">
-                <div class="stat-bar-inner stat-total" style="width: ${Math.min(pokemon.totalBaseStats / 900 * 100, 100)}%;"></div>
-                <div class="stat-text">
-                    <span class="stat-label">Total:</span>
-                    <span class="stat-value">${pokemon.totalBaseStats}</span>
+            <div class="pokemon-stat-bar">
+                <div class="stat-bar">
+                    <div class="stat-bar-inner stat-total" style="width: ${Math.min(pokemon.totalBaseStats / 900 * 100, 100)}%;"></div>
+                    <div class="stat-text">
+                        <span class="stat-label">Total:</span>
+                        <span class="stat-value">${pokemon.totalBaseStats}</span>
+                    </div>
                 </div>
             </div>
-        </div>
-    `;
-
-    const getTypeEffectivenessHTML = (types) => {
-        return types.map(type => {
-            const color = typeColors[type.toLowerCase()] || '#000';
-            return `<span style="color: ${color}">${type}</span>`;
-        }).join(', ') || 'None';
-    };
-
-    modalEffects.innerHTML =`
-    <div class="type-effectiveness">
-    <h3>Damage From</h3>
-    <p>0X: ${getTypeEffectivenessHTML(pokemon.typeEffectiveness.noDamageFrom)}</p>
-    <p>1/4X: ${getTypeEffectivenessHTML(pokemon.typeEffectiveness.quarterDamageFrom)}</p>
-    <p>1/2X: ${getTypeEffectivenessHTML(pokemon.typeEffectiveness.halfDamageFrom)}</p>
-    <p>1X: ${getTypeEffectivenessHTML(pokemon.typeEffectiveness.normalDamageFrom)}</p>
-    <p>2X: ${getTypeEffectivenessHTML(pokemon.typeEffectiveness.doubleDamageFrom)}</p>
-    <p>4X: ${getTypeEffectivenessHTML(pokemon.typeEffectiveness.quadrupleDamageFrom)}</p>
-    </div>
-`;
-
+        `;
+    
+        const getTypeEffectivenessHTML = (types) => {
+            return types.map(type => {
+                const color = typeColors[type.toLowerCase()] || '#000';
+                return `<span style="color: ${color}">${type}</span>`;
+            }).join(', ') || 'None';
+        };
+    
+        modalEffects.innerHTML =`
+            <div class="type-effectiveness">
+                <h3>Damage From</h3>
+                <p>0X: ${getTypeEffectivenessHTML(pokemon.typeEffectiveness.noDamageFrom)}</p>
+                <p>1/4X: ${getTypeEffectivenessHTML(pokemon.typeEffectiveness.quarterDamageFrom)}</p>
+                <p>1/2X: ${getTypeEffectivenessHTML(pokemon.typeEffectiveness.halfDamageFrom)}</p>
+                <p>1X: ${getTypeEffectivenessHTML(pokemon.typeEffectiveness.normalDamageFrom)}</p>
+                <p>2X: ${getTypeEffectivenessHTML(pokemon.typeEffectiveness.doubleDamageFrom)}</p>
+                <p>4X: ${getTypeEffectivenessHTML(pokemon.typeEffectiveness.quadrupleDamageFrom)}</p>
+            </div>
+        `;
+    
+        modal.classList.add('show'); // Add class to show the modal with animation
         modal.style.display = 'block'; // Display the modal
     }
+    auth.onAuthStateChanged(user => {
+        if (user) {
+            document.getElementById('user-name').textContent = user.email;
+            document.getElementById('login-register').style.display = 'none';
+            document.getElementById('user-info').style.display = 'block';
+        } else {
+            document.getElementById('login-register').style.display = 'block';
+            document.getElementById('user-info').style.display = 'none';
+        }
+    });
+
+    document.getElementById('show-login').addEventListener('click', () => {
+        document.getElementById('auth-forms').style.display = 'block';
+        document.getElementById('register-form').style.display = 'none';
+        document.getElementById('login-form').style.display = 'block';
+    });
+
+    document.getElementById('show-register').addEventListener('click', () => {
+        document.getElementById('auth-forms').style.display = 'block';
+        document.getElementById('login-form').style.display = 'none';
+        document.getElementById('register-form').style.display = 'block';
+    });
+
+    document.getElementById('login-button').addEventListener('click', () => {
+        const email = document.getElementById('login-username').value;
+        const password = document.getElementById('login-password').value;
+
+        auth.signInWithEmailAndPassword(email, password)
+            .then(userCredential => {
+                document.getElementById('auth-forms').style.display = 'none';
+            })
+            .catch(error => {
+                console.error('Error logging in:', error);
+            });
+    });
+
+    document.getElementById('register-button').addEventListener('click', () => {
+        const email = document.getElementById('register-username').value;
+        const password = document.getElementById('register-password').value;
+
+        auth.createUserWithEmailAndPassword(email, password)
+            .then(userCredential => {
+                document.getElementById('auth-forms').style.display = 'none';
+            })
+            .catch(error => {
+                console.error('Error registering:', error);
+            });
+    });
+
+    document.getElementById('logout-button').addEventListener('click', () => {
+        auth.signOut();
+    });
+
+    function saveUserPreferences(userId, preferences) {
+        db.collection('users').doc(userId).set({ preferences }, { merge: true })
+            .then(() => {
+                console.log('Preferences saved successfully');
+            })
+            .catch(error => {
+                console.error('Error saving preferences:', error);
+            });
+    }
+
+    function saveFavoritePokemon(userId, favoritePokemon) {
+        db.collection('users').doc(userId).set({ favoritePokemon }, { merge: true })
+            .then(() => {
+                console.log('Favorite Pokémon saved successfully');
+            })
+            .catch(error => {
+                console.error('Error saving favorite Pokémon:', error);
+            });
+    }
+
+    auth.onAuthStateChanged(user => {
+        if (user) {
+            // Retrieve user preferences and favorite Pokémon from Firestore
+            db.collection('users').doc(user.uid).get().then(doc => {
+                if (doc.exists) {
+                    const userData = doc.data();
+                    const preferences = userData.preferences || {}; // Replace with actual preferences structure
+                    const favoritePokemon = userData.favoritePokemon || []; // Replace with actual favorite Pokémon list
+    
+                    // Apply user preferences and favorite Pokémon list
+                    applyUserPreferences(preferences);
+                    applyFavoritePokemon(favoritePokemon);
+                } else {
+                    console.log('No such document!');
+                }
+            }).catch(error => {
+                console.error('Error getting document:', error);
+            });
+    
+            // Example preferences and favorite Pokémon list
+            const examplePreferences = {
+                darkMode: true,
+                showLegendary: true,
+            };
+    
+            const exampleFavoritePokemon = ['Pikachu', 'Charmander', 'Bulbasaur'];
+    
+            // Save example preferences and favorite Pokémon list
+            saveUserPreferences(user.uid, examplePreferences);
+            saveFavoritePokemon(user.uid, exampleFavoritePokemon);
+        }
+    });
+    
+    function applyUserPreferences(preferences) {
+        if (preferences.darkMode) {
+            document.body.classList.add('dark-mode');
+        } else {
+            document.body.classList.remove('dark-mode');
+        }
+        // Apply other preferences as needed
+    }
+    
+    function applyFavoritePokemon(favoritePokemon) {
+        // Apply the favorite Pokémon list to your UI or logic
+        console.log('Favorite Pokémon:', favoritePokemon);
+    }
+
+    const darkModeToggle = document.createElement('button');
+    darkModeToggle.textContent = 'Toggle Dark Mode';
+    darkModeToggle.classList.add('dark-mode-toggle');
+    document.querySelector('.pokedex-header').appendChild(darkModeToggle);
+
+    darkModeToggle.addEventListener('click', () => {
+        document.body.classList.toggle('dark-mode');
+    });
 });
+
+
