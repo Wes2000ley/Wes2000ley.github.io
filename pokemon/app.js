@@ -1,13 +1,13 @@
 // Firebase configuration
-var firebaseConfig = {
-    apiKey: "AIzaSyCMsDX7bpD0TBGjVC-91L-sInayAOjSDuU",
-    authDomain: "wesley-s-pokedex.firebaseapp.com",
-    projectId: "wesley-s-pokedex",
-    storageBucket: "wesley-s-pokedex.appspot.com",
-    messagingSenderId: "531675000016",
-    appId: "1:531675000016:web:f25f1de3cae504b03542d5",
-    measurementId: "G-TK8PFTVE00"
-  };
+export const firebaseConfig = {
+    apiKey: process.env.FIREBASE_API_KEY,
+    authDomain: process.env.FIREBASE_AUTH_DOMAIN,
+    projectId: process.env.FIREBASE_PROJECT_ID,
+    storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
+    appId: process.env.FIREBASE_APP_ID,
+    measurementId: process.env.FIREBASE_MEASUREMENT_ID,
+};
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
