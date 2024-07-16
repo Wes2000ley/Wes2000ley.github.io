@@ -24,6 +24,11 @@ jobs:
     - name: Build project
       run: npm run build
       
+    - name: Configure Git
+      run: |
+        git config --global user.email "skyrimbeast18@gmail.com"
+        git config --global user.name "Wes2000ley"
+      
     - name: Deploy to GitHub Pages
       env:
         FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
