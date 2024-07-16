@@ -1,14 +1,3 @@
-import { firebaseConfig } from './config.js';
-
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
-
-document.addEventListener("DOMContentLoaded", function() {
-    // Your existing code...
-});
-
 document.addEventListener("DOMContentLoaded", function() {
     let pokemonData;
 
@@ -604,126 +593,8 @@ document.getElementById('last-page').addEventListener('click', () => {
         modal.classList.add('show'); // Add class to show the modal with animation
         modal.style.display = 'block'; // Display the modal
     }
-    auth.onAuthStateChanged(user => {
-        if (user) {
-            document.getElementById('user-name').textContent = user.email;
-            document.getElementById('login-register').style.display = 'none';
-            document.getElementById('user-info').style.display = 'block';
-        } else {
-            document.getElementById('login-register').style.display = 'block';
-            document.getElementById('user-info').style.display = 'none';
-        }
-    });
-
-    document.getElementById('show-login').addEventListener('click', () => {
-        document.getElementById('auth-forms').style.display = 'block';
-        document.getElementById('register-form').style.display = 'none';
-        document.getElementById('login-form').style.display = 'block';
-    });
-
-    document.getElementById('show-register').addEventListener('click', () => {
-        document.getElementById('auth-forms').style.display = 'block';
-        document.getElementById('login-form').style.display = 'none';
-        document.getElementById('register-form').style.display = 'block';
-    });
-
-    document.getElementById('login-button').addEventListener('click', () => {
-        const email = document.getElementById('login-username').value;
-        const password = document.getElementById('login-password').value;
-
-        auth.signInWithEmailAndPassword(email, password)
-            .then(userCredential => {
-                document.getElementById('auth-forms').style.display = 'none';
-            })
-            .catch(error => {
-                console.error('Error logging in:', error);
-            });
-    });
-
-    document.getElementById('register-button').addEventListener('click', () => {
-        const email = document.getElementById('register-username').value;
-        const password = document.getElementById('register-password').value;
-
-        auth.createUserWithEmailAndPassword(email, password)
-            .then(userCredential => {
-                document.getElementById('auth-forms').style.display = 'none';
-            })
-            .catch(error => {
-                console.error('Error registering:', error);
-            });
-    });
-
-    document.getElementById('logout-button').addEventListener('click', () => {
-        auth.signOut();
-    });
-
-    function saveUserPreferences(userId, preferences) {
-        db.collection('users').doc(userId).set({ preferences }, { merge: true })
-            .then(() => {
-                console.log('Preferences saved successfully');
-            })
-            .catch(error => {
-                console.error('Error saving preferences:', error);
-            });
-    }
-
-    function saveFavoritePokemon(userId, favoritePokemon) {
-        db.collection('users').doc(userId).set({ favoritePokemon }, { merge: true })
-            .then(() => {
-                console.log('Favorite Pokémon saved successfully');
-            })
-            .catch(error => {
-                console.error('Error saving favorite Pokémon:', error);
-            });
-    }
-
-    auth.onAuthStateChanged(user => {
-        if (user) {
-            // Retrieve user preferences and favorite Pokémon from Firestore
-            db.collection('users').doc(user.uid).get().then(doc => {
-                if (doc.exists) {
-                    const userData = doc.data();
-                    const preferences = userData.preferences || {}; // Replace with actual preferences structure
-                    const favoritePokemon = userData.favoritePokemon || []; // Replace with actual favorite Pokémon list
     
-                    // Apply user preferences and favorite Pokémon list
-                    applyUserPreferences(preferences);
-                    applyFavoritePokemon(favoritePokemon);
-                } else {
-                    console.log('No such document!');
-                }
-            }).catch(error => {
-                console.error('Error getting document:', error);
-            });
     
-            // Example preferences and favorite Pokémon list
-            const examplePreferences = {
-                darkMode: true,
-                showLegendary: true,
-            };
-    
-            const exampleFavoritePokemon = ['Pikachu', 'Charmander', 'Bulbasaur'];
-    
-            // Save example preferences and favorite Pokémon list
-            saveUserPreferences(user.uid, examplePreferences);
-            saveFavoritePokemon(user.uid, exampleFavoritePokemon);
-        }
-    });
-    
-    function applyUserPreferences(preferences) {
-        if (preferences.darkMode) {
-            document.body.classList.add('dark-mode');
-        } else {
-            document.body.classList.remove('dark-mode');
-        }
-        // Apply other preferences as needed
-    }
-    
-    function applyFavoritePokemon(favoritePokemon) {
-        // Apply the favorite Pokémon list to your UI or logic
-        console.log('Favorite Pokémon:', favoritePokemon);
-    }
-
     const darkModeToggle = document.createElement('button');
     darkModeToggle.textContent = 'Toggle Dark Mode';
     darkModeToggle.classList.add('dark-mode-toggle');
@@ -733,5 +604,3 @@ document.getElementById('last-page').addEventListener('click', () => {
         document.body.classList.toggle('dark-mode');
     });
 });
-
-
