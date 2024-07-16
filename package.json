@@ -1,16 +1,18 @@
 {
-  "name": "WesleyAtwell.com",
+  "name": "your-project-name",
   "version": "1.0.0",
+  "description": "Your project description",
+  "main": "index.js",
   "scripts": {
-    "start": "node server.js",
-    "build": "react-scripts build", // or "gatsby build" or "next build" or whatever build command your project uses
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "start": "live-server --open=src", // for local development
+    "build": "echo 'No build script defined'", // placeholder if no build steps are needed
+    "deploy": "gh-pages -d src" // deployment script
   },
-  "dependencies": {
-    // your dependencies
-  },
+  "author": "Your Name",
+  "license": "MIT",
   "devDependencies": {
-    // your devDependencies
-  }
+    "gh-pages": "^4.0.0", // ensure this is installed if using for deployment
+    "live-server": "^1.2.1" // for local development server
+  },
+  "dependencies": {}
 }
