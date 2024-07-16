@@ -28,6 +28,9 @@ jobs:
           echo "FIREBASE_APP_ID=${{ secrets.FIREBASE_APP_ID }}" >> .env
           echo "FIREBASE_MEASUREMENT_ID=${{ secrets.FIREBASE_MEASUREMENT_ID }}" >> .env
 
+      - name: Print .env file for debugging
+        run: cat .env
+
       - name: Install dependencies
         run: npm install
 
@@ -41,4 +44,7 @@ jobs:
           publish_dir: ./dist
 
       - name: Print Node.js version
-        run: n
+        run: node -v
+
+      - name: Print NPM version
+        run: npm -v
