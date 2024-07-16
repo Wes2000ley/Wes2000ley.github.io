@@ -11,8 +11,8 @@ body {
     box-sizing: border-box;
     height: 100%;
     background-repeat: no-repeat;
-    overflow-x: scroll;
-    overflow-y: scroll;
+    overflow-x: scroll !important;
+    overflow-y: scroll !important;
 }
 
 /* Add cursor: pointer to all clickable elements */
@@ -71,6 +71,7 @@ label,
     width: 40%;
     height: 30px;
     background-color: #ceff9d;
+    margin: 20px;
 }
 
 #search {
@@ -256,7 +257,7 @@ label.legendary:hover , label.mythical:hover {
 }
 
 .pokedex-header h1 {
-    margin: 0;
+
     font-size: 3em;
     color: #e2175b; /* Pokémon-themed pink */
 }
@@ -341,6 +342,8 @@ button:hover:enabled {
     border-radius: 10px;
     display: flex;
     justify-content: center;
+    overflow-x: auto !important;
+    overflow-y: auto !important;
 }
 
 .pokedex-outer {
