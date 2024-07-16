@@ -683,6 +683,12 @@ p {
 @media only screen and (max-width: 768px) {
     .pokedex-container {
         padding: 10px;
+        grid-template-areas:
+            "pokedex-text"
+            "search-bar"
+            "type-filter";
+        grid-template-rows: auto auto auto;
+        gap: 20px;
     }
 
     .pokedex-header {
@@ -756,6 +762,7 @@ p {
     }
 }
 
+
 body.dark-mode {
     background: linear-gradient(to bottom, #121212, #333);
 }
@@ -774,6 +781,11 @@ body.dark-mode {
     cursor: pointer;
     font-size: 1em;
     font-weight: bold;
+}
+
+/* Update slider labels to have white text in dark mode */
+body.dark-mode #slider-filters label  {
+    color: #fff;
 }
 
 .dark-mode-toggle:hover {
@@ -831,6 +843,7 @@ body.dark-mode {
 
 .dark-mode-toggle {
     transition: background-color 0.3s ease, color 0.3s ease;
+    margin: 10px;
 }
 
 .dark-mode-toggle:hover {
@@ -838,3 +851,122 @@ body.dark-mode {
     color: #fff;
 }
 
+.pokedex-container {
+    display: grid;
+    grid-template-areas:
+        "pokedex-text"
+        "search-bar"
+        "type-filter"
+        "pokemon-list"
+        "pagination";
+    grid-template-rows: auto auto auto 1fr auto;
+    gap: 20px;
+    max-width: 1200px;
+    width: 100%;
+}
+
+.pokedex-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+/* Ensure type filter wraps correctly on smaller screens */
+.type-filter {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+}
+
+/* Base styles for sliders */
+input[type="range"] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 8px;
+    border-radius: 5px;
+    background: #ddd;
+    outline: none;
+    opacity: 0.7;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    background: #4CAF50;
+    cursor: pointer;
+}
+
+input[type="range"]::-moz-range-thumb {
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    background: #4CAF50;
+    cursor: pointer;
+}
+
+/* Specific styles for each stat */
+#hp-slider {
+    background: linear-gradient(to right, #ff0000, #ff0000);
+}
+
+#hp-slider::-webkit-slider-thumb {
+    background: #ff0000;
+}
+
+#attack-slider {
+    background: linear-gradient(to right, #ff6600, #ff6600);
+}
+
+#attack-slider::-webkit-slider-thumb {
+    background: #ff6600;
+}
+
+#defense-slider {
+    background: linear-gradient(to right, #ffcc00, #ffcc00);
+}
+
+#defense-slider::-webkit-slider-thumb {
+    background: #ffcc00;
+}
+
+#special-attack-slider {
+    background: linear-gradient(to right, #3399ff, #3399ff);
+}
+
+#special-attack-slider::-webkit-slider-thumb {
+    background: #3399ff;
+}
+
+#special-defense-slider {
+    background: linear-gradient(to right, #66cc33, #66cc33);
+}
+
+#special-defense-slider::-webkit-slider-thumb {
+    background: #66cc33;
+}
+
+#speed-slider {
+    background: linear-gradient(to right, #ff3399, #ff3399);
+}
+
+#speed-slider::-webkit-slider-thumb {
+    background: #ff3399;
+}
+
+#total-base-stats-slider {
+    background: linear-gradient(to right, rgb(201, 5, 255), rgb(201, 5, 255));
+}
+
+#total-base-stats-slider::-webkit-slider-thumb {
+    background: rgb(201, 5, 255);
+}
