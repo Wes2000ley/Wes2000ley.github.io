@@ -8,6 +8,14 @@
 </head>
 <body>
     <div class="pokedex-container">
+        <div class="sorting">
+            <label for="sort-by">Sort by:</label>
+            <select id="sort-by">
+                <option value="name">Name</option>
+                <option value="type">Type</option>
+                <option value="base-stats">Base Stats</option>
+            </select>
+        </div>
         <div class="pokedex-header">
             <h1 id="pokedex" class="pokedex-text">Wesley's Pokédex</h1>
             <input type="text" id="search-bar" placeholder="Search Pokémon by name..." autocomplete="off">
