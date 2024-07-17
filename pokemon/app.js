@@ -1,3 +1,5 @@
+
+
 document.addEventListener("DOMContentLoaded", function() {
     let pokemonData;
 
@@ -22,6 +24,264 @@ document.addEventListener("DOMContentLoaded", function() {
         fairy: '#ee99ac'
     };
 
+ // Authentication elements
+ const accountManagement = document.getElementById('account-management');
+ const accountManagementButton = document.getElementById('account-management-button');
+ const accountManagementMenu = document.getElementById('account-management-menu');
+ const loginForm = document.getElementById('login-form');
+ const signupForm = document.getElementById('signup-form');
+ const updateEmailForm = document.getElementById('update-email-form');
+ const updatePasswordForm = document.getElementById('update-password-form');
+ const mainContent = document.getElementById('main-content');
+ const currentEmail = document.getElementById('current-email');
+ const showUpdateEmailButton = document.getElementById('show-update-email');
+ const showUpdatePasswordButton = document.getElementById('show-update-password');
+ const logoutButton = document.getElementById('logout-button');
+ const updateEmailInput = document.getElementById('update-email');
+ const updateEmailButton = document.getElementById('update-email-button');
+ const cancelUpdateEmailButton = document.getElementById('cancel-update-email');
+ const updatePasswordInput = document.getElementById('update-password');
+ const updatePasswordButton = document.getElementById('update-password-button');
+ const cancelUpdatePasswordButton = document.getElementById('cancel-update-password');
+ const loginEmail = document.getElementById('login-email');
+ const loginPassword = document.getElementById('login-password');
+ const signupEmail = document.getElementById('signup-email');
+ const signupPassword = document.getElementById('signup-password');
+ const loginButton = document.getElementById('login-button');
+ const signupButton = document.getElementById('signup-button');
+ const showSignup = document.getElementById('show-signup');
+ const showLogin = document.getElementById('show-login');
+ const pokemonList = document.getElementById('pokemon-list');
+
+ // Helper function to toggle visibility
+ function toggleVisibility(element) {
+     if (element.classList.contains('hidden')) {
+         element.classList.remove('hidden');
+     } else {
+         element.classList.add('hidden');
+     }
+ }
+
+ // Helper function to hide all forms
+ function hideAllForms() {
+     loginForm.classList.add('hidden');
+     signupForm.classList.add('hidden');
+     accountManagementMenu.classList.add('hidden');
+     updateEmailForm.classList.add('hidden');
+     updatePasswordForm.classList.add('hidden');
+     mainContent.classList.add('hidden');
+ }
+
+ // Fetch and display Pokémon data
+ function fetchPokemonData() {
+     fetch('pokemon_data.txt')
+         .then(response => response.text())
+         .then(data => {
+             const lines = data.trim().split('\n');
+             const pokemonData = lines.map(line => {
+                 const [name, types, height, weight, abilities, sprite, art, totalBaseStats, habitat, color, legendary, mythical, hp, attack, defense, specialAttack, specialDefense, speed, noDamageFrom, quarterDamageFrom, halfDamageFrom, normalDamageFrom, doubleDamageFrom, quadrupleDamageFrom] = line.split(';');
+                 return {
+                     name: name.trim(),
+                     types: types.split(',').map(type => type.trim()),
+                     height: parseFloat(height),
+                     weight: parseFloat(weight),
+                     abilities: abilities.split(',').map(ability => ability.trim()),
+                     sprite: sprite.trim(),
+                     art: art.trim(),
+                     totalBaseStats: parseInt(totalBaseStats),
+                     habitat: habitat.trim(),
+                     color: color.trim(),
+                     legendary: legendary === 'true',
+                     mythical: mythical === 'true',
+                     stats: {
+                         hp: parseInt(hp),
+                         attack: parseInt(attack),
+                         defense: parseInt(defense),
+                         specialAttack: parseInt(specialAttack),
+                         specialDefense: parseInt(specialDefense),
+                         speed: parseInt(speed)
+                     },
+                     typeEffectiveness: {
+                         noDamageFrom: noDamageFrom.split(',').filter(x => x),
+                         quarterDamageFrom: quarterDamageFrom.split(',').filter(x => x),
+                         halfDamageFrom: halfDamageFrom.split(',').filter(x => x),
+                         normalDamageFrom: normalDamageFrom.split(',').filter(x => x),
+                         doubleDamageFrom: doubleDamageFrom.split(',').filter(x => x),
+                         quadrupleDamageFrom: quadrupleDamageFrom.split(',').filter(x => x)
+                     }
+                 };
+             });
+             displayPokemonData(pokemonData);
+         })
+         .catch(error => {
+             console.error('Error fetching Pokémon data:', error);
+         });
+ }
+
+ function displayPokemonData(data) {
+     pokemonList.innerHTML = '';
+     data.forEach(pokemon => {
+         const pokemonElement = document.createElement('div');
+         pokemonElement.classList.add('pokemon-card');
+         pokemonElement.innerHTML = `
+             <h2>${pokemon.name}</h2>
+             <img src="${pokemon.sprite}" alt="${pokemon.name}">
+             <p>Types: ${pokemon.types.join(', ')}</p>
+             <p>Height: ${pokemon.height} m</p>
+             <p>Weight: ${pokemon.weight} kg</p>
+             <p>Abilities: ${pokemon.abilities.join(', ')}</p>
+         `;
+         pokemonList.appendChild(pokemonElement);
+     });
+ }
+
+ // Handle account management button click
+ accountManagementButton.addEventListener('click', () => {
+     if (!firebase.auth().currentUser) {
+         toggleVisibility(loginForm);
+     } else {
+         toggleVisibility(accountManagementMenu);
+     }
+ });
+
+ // Show signup form
+ showSignup.addEventListener('click', (event) => {
+     event.preventDefault();
+     toggleVisibility(signupForm);
+     toggleVisibility(loginForm);
+ });
+
+ // Show login form
+ showLogin.addEventListener('click', (event) => {
+     event.preventDefault();
+     toggleVisibility(loginForm);
+     toggleVisibility(signupForm);
+ });
+
+ // Handle login
+ loginButton.addEventListener('click', () => {
+     const email = loginEmail.value;
+     const password = loginPassword.value;
+     firebase.auth().signInWithEmailAndPassword(email, password)
+         .then((userCredential) => {
+             hideAllForms();
+             toggleVisibility(accountManagementMenu);
+             currentEmail.textContent = `Current Email: ${userCredential.user.email}`;
+             fetchPokemonData();
+         })
+         .catch((error) => {
+             console.error('Login error:', error);
+             alert(error.message);
+         });
+ });
+
+ // Handle signup
+ signupButton.addEventListener('click', () => {
+     const email = signupEmail.value;
+     const password = signupPassword.value;
+     firebase.auth().createUserWithEmailAndPassword(email, password)
+         .then((userCredential) => {
+             hideAllForms();
+             toggleVisibility(accountManagementMenu);
+             currentEmail.textContent = `Current Email: ${userCredential.user.email}`;
+             fetchPokemonData();
+         })
+         .catch((error) => {
+             console.error('Signup error:', error);
+             alert(error.message);
+         });
+ });
+
+ // Handle auth state change
+ firebase.auth().onAuthStateChanged(user => {
+     if (user) {
+         hideAllForms();
+         toggleVisibility(mainContent);
+         currentEmail.textContent = `Current Email: ${user.email}`;
+         fetchPokemonData();
+     } else {
+         hideAllForms();
+     }
+ });
+
+ // Show update email form
+ showUpdateEmailButton.addEventListener('click', () => {
+     toggleVisibility(accountManagementMenu);
+     toggleVisibility(updateEmailForm);
+ });
+
+ // Show update password form
+ showUpdatePasswordButton.addEventListener('click', () => {
+     toggleVisibility(accountManagementMenu);
+     toggleVisibility(updatePasswordForm);
+ });
+
+ // Cancel update email
+ cancelUpdateEmailButton.addEventListener('click', () => {
+     toggleVisibility(updateEmailForm);
+     toggleVisibility(accountManagementMenu);
+ });
+
+ // Cancel update password
+ cancelUpdatePasswordButton.addEventListener('click', () => {
+     toggleVisibility(updatePasswordForm);
+     toggleVisibility(accountManagementMenu);
+ });
+
+ // Handle update email
+ updateEmailButton.addEventListener('click', () => {
+     const user = firebase.auth().currentUser;
+     const newEmail = updateEmailInput.value;
+
+     user.updateEmail(newEmail).then(() => {
+         alert('Email updated successfully.');
+         currentEmail.textContent = `Current Email: ${newEmail}`;
+         toggleVisibility(updateEmailForm);
+         toggleVisibility(accountManagementMenu);
+     }).catch((error) => {
+         console.error('Error updating email:', error);
+         alert(error.message);
+     });
+ });
+
+ // Handle update password
+ updatePasswordButton.addEventListener('click', () => {
+     const user = firebase.auth().currentUser;
+     const newPassword = updatePasswordInput.value;
+
+     user.updatePassword(newPassword).then(() => {
+         alert('Password updated successfully.');
+         toggleVisibility(updatePasswordForm);
+         toggleVisibility(accountManagementMenu);
+     }).catch((error) => {
+         console.error('Error updating password:', error);
+         alert(error.message);
+     });
+ });
+
+ // Handle logout
+ logoutButton.addEventListener('click', () => {
+     firebase.auth().signOut().then(() => {
+         hideAllForms();
+     }).catch((error) => {
+         console.error('Logout error:', error);
+         alert(error.message);
+     });
+ });
+
+ firebase.auth().onAuthStateChanged(user => {
+     if (user) {
+         // User is signed in.
+         console.log("User is signed in.");
+         // Add any user-specific logic here, if needed.
+     } else {
+         // No user is signed in.
+         console.log("No user is signed in.");
+         // Load the general content that doesn't require user authentication.
+     }
+ });
+
+  
     function getComplementaryColor(hex) {
         hex = hex.replace(/^#/, '');
         let r = parseInt(hex.substring(0, 2), 16);
@@ -603,4 +863,6 @@ document.getElementById('last-page').addEventListener('click', () => {
     darkModeToggle.addEventListener('click', () => {
         document.body.classList.toggle('dark-mode');
     });
+
+
 });

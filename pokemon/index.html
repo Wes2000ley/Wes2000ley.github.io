@@ -9,6 +9,60 @@
 <body>
     <div class="pokedex-container">
         <div class="pokedex-header">
+
+<!-- Account Management Container -->
+<div id="account-management" class="auth-form">
+    <button id="account-management-button">Account Management</button>
+    
+    <!-- Account Management Menu -->
+    <div id="account-management-menu" class="hidden">
+        <h2>Account Management</h2>
+        <p id="current-email">Current Email: </p>
+        <button id="show-update-email">Change Email</button>
+        <button id="show-update-password">Change Password</button>
+        <button id="logout-button">Logout</button>
+    </div>
+
+    <!-- Login Form -->
+    <div id="login-form" class="hidden">
+        <h2>Login</h2>
+        <input type="email" id="login-email" placeholder="Email" required>
+        <input type="password" id="login-password" placeholder="Password" required>
+        <button id="login-button">Login</button>
+        <p>Don't have an account? <a href="#" id="show-signup">Sign Up</a></p>
+    </div>
+
+    <!-- Signup Form -->
+    <div id="signup-form" class="hidden">
+        <h2>Sign Up</h2>
+        <input type="email" id="signup-email" placeholder="Email" required>
+        <input type="password" id="signup-password" placeholder="Password" required>
+        <button id="signup-button">Sign Up</button>
+        <p>Already have an account? <a href="#" id="show-login">Login</a></p>
+    </div>
+
+    <!-- Update Email Form -->
+    <div id="update-email-form" class="hidden">
+        <h2>Change Email</h2>
+        <input type="email" id="update-email" placeholder="New Email">
+        <button id="update-email-button">Update Email</button>
+        <button id="cancel-update-email">Cancel</button>
+    </div>
+
+    <!-- Update Password Form -->
+    <div id="update-password-form" class="hidden">
+        <h2>Change Password</h2>
+        <input type="password" id="update-password" placeholder="New Password">
+        <button id="update-password-button">Update Password</button>
+        <button id="cancel-update-password">Cancel</button>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div id="main-content">
+</div>
+
+
             <h1 id="pokedex" class="pokedex-text">Wesley's Pokédex</h1>
             <input type="text" id="search-bar" placeholder="Search Pokémon by name..." autocomplete="off">
             <div id="type-filter" class="type-filter"></div>
@@ -55,12 +109,25 @@
         </div>
     </div>
 
-    <div id="loading" class="loading" style="display: none;">Loading...</div>
-    <script src="app.js"></script>
     <!-- Firebase App (the core Firebase SDK) -->
-<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
-<!-- Add Firebase products that you want to use -->
-<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+    <!-- Add Firebase products that you want to use -->
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
+    <script>
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCMsDX7bpD0TBGjVC-91L-sInayAOjSDuU",
+            authDomain: "wesley-s-pokedex.firebaseapp.com",
+            projectId: "wesley-s-pokedex",
+            storageBucket: "wesley-s-pokedex.appspot.com",
+            messagingSenderId: "531675000016",
+            appId: "1:531675000016:web:f25f1de3cae504b03542d5",
+            measurementId: "G-TK8PFTVE00"
+        };
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+    </script>
+    <!-- Your app's JavaScript -->
+    <script src="app.js"></script>
 </body>
 </html>

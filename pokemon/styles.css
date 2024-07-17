@@ -795,6 +795,10 @@ body.dark-mode #slider-filters label  {
     background-color: #444;
 }
 
+body.dark-mode .auth-form{
+    color: white;
+}
+
 .pagination {
     display: flex;
     align-items: center;
@@ -972,4 +976,47 @@ input[type="range"]::-moz-range-thumb {
 
 #total-base-stats-slider::-webkit-slider-thumb {
     background: rgb(201, 5, 255);
+}
+
+.hidden {
+    display: none;
+}
+
+.auth-form {
+    max-width: 300px;
+    margin: auto;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.auth-form h2 {
+    margin-bottom: 20px;
+}
+
+.auth-form input {
+    width: calc(100% - 20px);
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.auth-form button {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    background-color: #db3c36;
+    color: #fff;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+}
+
+.auth-form button:hover {
+    background-color: #0099cc;
+}
+
+.auth-form p {
+    margin-top: 20px;
 }
