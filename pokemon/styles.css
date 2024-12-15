@@ -154,10 +154,12 @@ input[type='range'] {
 /* --- Legendary and Mythical Labels --- */
 label.legendary {
     background: gold;
+    color: #000;
 }
 
 label.mythical {
     background: silver;
+    color: #000;
 }
 
 /* --- Checked Checkbox Labels within Type Filter Only --- */
