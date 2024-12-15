@@ -39,9 +39,10 @@ input[type='range'] {
         "pokedex-text"
         "search-bar"
         "type-filter"
+        "slider-filters"
         "pokemon-list"
         "pagination";
-    grid-template-rows: auto auto auto 1fr auto;
+    grid-template-rows: auto auto auto auto 1fr auto;
     gap: 20px;
     max-width: 1200px;
     width: 100%;
@@ -50,10 +51,22 @@ input[type='range'] {
 }
 
 /* --- Grid Areas --- */
-.pokedex-text,
-#search-bar,
-#type-filter {
+.pokedex-text {
     grid-area: pokedex-text;
+}
+
+#search-bar {
+    grid-area: search-bar;
+}
+
+#type-filter {
+    grid-area: type-filter;
+}
+
+
+#slider-filters.hidden {
+    opacity: 0;
+    display: none;
 }
 
 /* --- Pokedex Grid --- */
@@ -66,7 +79,6 @@ input[type='range'] {
 
 /* --- Search Bar Styles --- */
 #search-bar {
-    grid-area: search-bar;
     width: 40%;
     background-color: #ceff9d;
     margin: 0 auto; /* Centered */
@@ -252,6 +264,7 @@ label.mythical {
 .pokemon-card h2 {
     font-size: 200%;
     font-weight: 800;
+    word-wrap: break-word;
 }
 
 .pokemon-card p {
@@ -327,7 +340,7 @@ button:hover:enabled {
 .modal {
     display: none;
     position: fixed;
-    z-index: 1;
+    z-index: 1000; /* Ensure it overlays other elements */
     left: 0;
     top: 0;
     width: 100%;
@@ -335,21 +348,20 @@ button:hover:enabled {
     overflow: auto;
     background-color: rgba(0, 0, 0, 0.8);
     padding-top: 50px;
+    padding-bottom: 50px;
     transition: opacity 0.5s ease;
 }
 
 .modal-content {
     margin: auto;
-    padding: 2%;
-    margin-top: 20%;
-    margin-bottom: 20%;
+    padding: 0;
     width: 90%;
     max-width: 800px;
     border-radius: 10px;
     display: flex;
     justify-content: center;
-    overflow-x: auto !important;
-    overflow-y: auto !important;
+    overflow-x: hidden;
+    overflow-y: auto;
     transform: translateY(-50px);
     transition: transform 0.5s ease;
 }
@@ -364,30 +376,51 @@ button:hover:enabled {
     background: #db3c36;
     border: 5px solid #333;
     border-radius: 2%;
-    width: 100%;
-    max-width: 800px;
     padding: 1px;
     padding-top: 0;
     color: #fff;
+    height: 100%;
 }
 
 .pokedex-left {
-    flex: 0.6;
+    flex: 0.8;
     padding: 10px;
+    text-align: center;
+    display: inline-block;
+    max-width: fit-content;
 }
 
 .pokedex-right {
     flex: 1;
     padding: 10px;
+    max-width: fit-content;
 }
 
 /* --- Screen Header --- */
 .screen-header {
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
     margin-bottom: 10px;
-    height: 50px;
+    display: block;
+    margin-top: -10px;
+}
+
+.screen-header h2 {
+    margin: 0;
+    font-size: 1.5em;
+}
+
+.screen-header .close {
+    font-size: 1.2em;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.screen-header .close:hover {
+    background-color: #777;
 }
 
 /* --- Pokémon Image Container --- */
@@ -403,14 +436,15 @@ button:hover:enabled {
     background-image:
         linear-gradient(to right, rgb(159, 159, 159) 0px, transparent 0.5px),
         linear-gradient(to bottom, rgb(159, 159, 159) 0px, transparent 0.5px);
-    max-width: 100px;
-    position: absolute;
-    opacity: 0;
+    max-width: 150px; /* Adjusted for mobile */
+    position: relative; /* Changed from absolute */
+    opacity: 1; /* Ensure visibility */
 }
 
 .pokemon-image-container img {
-    max-width: 100%;
-    width: 100px;
+    width: 100%;
+    height: auto;
+    border-radius: 5px;
 }
 
 /* --- Pokémon Stats --- */
@@ -497,15 +531,12 @@ button:hover:enabled {
     border: 2px solid #333;
     border-radius: 10px;
     padding: 10px;
-    height: 700px;
-    width: 600px;
     text-transform: capitalize;
     background-size: 40px 40px;
     background-image:
         linear-gradient(to right, rgb(159, 159, 159) 0px, transparent 0.5px),
         linear-gradient(to bottom, rgb(159, 159, 159) 0px, transparent 0.5px);
-    display: table-cell;
-    vertical-align: middle;
+    display: block; /* Changed from table-cell for better responsiveness */
     text-align: center;
     overflow-y: auto;
     font-size: 120%;
@@ -513,11 +544,10 @@ button:hover:enabled {
 }
 
 .pokemon-details img {
-    width: 350px;
-    height: 350px;
-    justify-content: center;
-    display: inline-block;
-    position: relative;
+    width: 100%;
+    height: auto;
+    max-width: 100%;
+    border-radius: 5px;
 }
 
 .pokemon-details div {
@@ -585,13 +615,14 @@ span.close {
     font-weight: 900;
 }
 
-
-/* Slider Filters */
+/* --- Slider Filters --- */
 #slider-filters {
     display: flex;
     flex-direction: column;
     gap: 10px;
     margin: 20px 0;
+    opacity: 1;
+    transition: opacity 0.3s ease;
 }
 
 #slider-filters label {
@@ -610,7 +641,7 @@ body.dark-mode #slider-filters label {
     flex: 1;
 }
 
-/* Slider Range Input Styles */
+/* --- Slider Range Input Styles --- */
 input[type="range"] {
     appearance: none;
     width: 100%;
@@ -843,29 +874,23 @@ body.dark-mode .auth-form {
     color: #fff;
 }
 
-/* Specifically Set Colors for Legendary and Mythical in Modal */
+/* --- Override Styles for Legendary and Mythical Labels Inside the Modal --- */
+.modal .PPP.Pleg,
+.modal .PPP.Pmyth {
+    animation: none !important;
+    background: none !important;
+    -webkit-background-clip: none !important;
+    background-clip: none !important;
+    color: inherit !important; /* Ensures the color is as defined inline or default */
+}
+
+/* --- Specifically Set Colors for Legendary and Mythical in Modal --- */
 .modal .PPP.Pleg {
-    font-family: 'Pokemon Solid', Arial, sans-serif;
-    text-transform: capitalize;
-    text-align: center;
-    -webkit-text-stroke: 0.4px #000;
-    background: linear-gradient(to left, #6666ff, #0099ff , #00ff00, #ff3399, #6666ff);
-    background-clip: text;
-    color: transparent;
-    animation: rainbow_animation 6s alternate-reverse linear infinite;
-    background-size: 400% 100%;
+    color: gold !important;
 }
 
 .modal .PPP.Pmyth {
-    font-family: 'Pokemon Solid', Arial, sans-serif;
-    text-transform: capitalize;
-    text-align: center;
-    -webkit-text-stroke: 0.4px #000;
-    background: linear-gradient(to left, #6666ff, #0099ff , #00ff00, #ff3399, #6666ff);
-    background-clip: text;
-    color: transparent;
-    animation: rainbow_animation 6s alternate-reverse linear infinite;
-    background-size: 400% 100%;
+    color: silver !important;
 }
 
 /* --- Additional Small Screen Styles --- */
@@ -876,9 +901,10 @@ body.dark-mode .auth-form {
             "pokedex-text"
             "search-bar"
             "type-filter"
+            "slider-filters"
             "pokemon-list"
             "pagination";
-        grid-template-rows: auto auto auto 1fr auto;
+        grid-template-rows: auto auto auto auto 1fr auto;
         gap: 10px;
     }
 
@@ -920,7 +946,7 @@ body.dark-mode .auth-form {
 
     .modal-content {
         width: 95%;
-        max-width: 400px;
+        max-width: 500px;
         padding: 10px;
     }
 
@@ -975,9 +1001,186 @@ body.dark-mode .auth-form {
     }
 }
 
-/* Hidden Class to Toggle Visibility */
-.hidden {
-    display: none !important;
-    opacity: 0 !important;
-    transition: opacity 0.3s ease !important;
+/* --- Responsive Modal Layout Enhancements --- */
+@media only screen and (max-width: 768px) {
+    /* Adjust modal-content for better spacing */
+    .modal-content {
+        width: 95%;
+        max-width: 500px;
+        padding: 10px;
+        margin-top: 10%; /* Reduced top margin for smaller screens */
+        margin-bottom: 10%; /* Reduced bottom margin for smaller screens */
+        border-radius: 10px;
+    }
+
+    /* Stack pokedex-outer vertically */
+    .pokedex-outer {
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 100px;
+    }
+
+    /* Ensure pokedex-left and pokedex-right take full width */
+    .pokedex-left,
+    .pokedex-right {
+        width: 100%;
+        padding: 10px;
+    }
+
+    /* Make pokemon-details responsive */
+    .pokemon-details {
+        width: 100%;
+        height: auto; /* Remove fixed height */
+        max-height: none;
+    }
+
+    /* Adjust images to fit within containers */
+    .pokemon-details img {
+        width: 100%;
+        height: auto;
+        max-width: 100%;
+    }
+
+    .pokemon-image-container {
+        position: relative; /* Remove absolute positioning */
+        opacity: 1; /* Make visible on mobile */
+        max-width: 150px; /* Adjust as needed */
+        margin-bottom: 20px; /* Add spacing below image container */
+    }
+
+    .pokemon-image-container img {
+        width: 100%;
+        height: auto;
+    }
+
+    /* Adjust font sizes for readability */
+    .pokemon-details p,
+    .pokemon-details div,
+    .pokemon-stats p,
+    .pokemon-stats div {
+        font-size: 1em;
+    }
+
+    /* Ensure type-effectiveness section fits well */
+    .type-effectiveness {
+        font-size: 1em;
+    }
+}
+@media only screen and (max-width: 480px) {
+    /* Further adjustments for very small screens */
+
+    /* Adjust modal-content padding */
+    .modal-content {
+        padding: 5px;
+        margin-top: 5%;
+        margin-bottom: 5%;
+        max-width: 90%;
+    }
+
+    /* Stack pokedex-outer vertically and center content */
+    .pokedex-outer {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    /* Reduce padding for pokedex-left and pokedex-right */
+    .pokedex-left,
+    .pokedex-right {
+        width: 100%;
+        padding: 5px;
+    }
+
+    /* Make pokemon-details fully responsive */
+    .pokemon-details {
+        width: 100%;
+        height: auto;
+        max-height: none;
+    }
+
+    /* Ensure images do not overflow */
+    .pokemon-details img {
+        width: 100%;
+        height: auto;
+        max-width: 100%;
+    }
+
+    .pokemon-image-container {
+        max-width: 120px; /* Smaller image on very small screens */
+        margin-bottom: 15px; /* Adjust spacing */
+    }
+
+    .pokemon-image-container img {
+        width: 100%;
+        height: auto;
+    }
+
+    /* Adjust font sizes for optimal readability */
+    .pokemon-details p,
+    .pokemon-details div,
+    .pokemon-stats p,
+    .pokemon-stats div {
+        font-size: 0.9em;
+    }
+
+    /* Ensure type-effectiveness section fits well */
+    .type-effectiveness {
+        font-size: 0.9em;
+    }
+}
+
+/* --- Ensuring .pokemon-image-container Displays Correctly --- */
+.pokemon-image-container {
+    display: inline-block;
+    justify-content: center;
+    align-items: center;
+    background-color: #fff;
+    border: 2px solid #333;
+    padding: 10px;
+    margin-bottom: 10px;
+    background-size: 40px 40px;
+    background-image:
+        linear-gradient(to right, rgb(159, 159, 159) 0px, transparent 0.5px),
+        linear-gradient(to bottom, rgb(159, 159, 159) 0px, transparent 0.5px);
+    max-width: 150px; /* Adjusted for mobile */
+    position: relative; /* Changed from absolute */
+    opacity: 1; /* Ensure visibility */
+}
+
+/* --- Optimizing .pokemon-details --- */
+.pokemon-details {
+    height: 90%;
+    background-color: #fff;
+    color: #000;
+    border: 2px solid #333;
+    border-radius: 10px;
+    padding: 10px;
+    text-transform: capitalize;
+    background-size: 40px 40px;
+    background-image:
+        linear-gradient(to right, rgb(159, 159, 159) 0px, transparent 0.5px),
+        linear-gradient(to bottom, rgb(159, 159, 159) 0px, transparent 0.5px);
+    display: block; /* Changed from table-cell for better responsiveness */
+    text-align: center;
+    overflow-y: auto;
+    font-size: 120%;
+    font-weight: 800;
+    max-width: fit-content;
+}
+
+/* --- Responsive Images in Modal --- */
+.modal-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 5px;
+}
+
+/* --- Ensuring Modal Overlays Correctly --- */
+.modal {
+    z-index: 1000; /* Higher than other elements */
+}
+
+/* --- Smooth Scrolling for Modal Content --- */
+.modal-content {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch; /* Enables momentum scrolling on iOS */
 }
