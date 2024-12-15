@@ -599,6 +599,7 @@ span.close {
     align-items: center;
     gap: 10px;
     color: #000; /* Default color */
+    font-weight: 700;
 }
 
 body.dark-mode #slider-filters label {
@@ -972,4 +973,11 @@ body.dark-mode .auth-form {
         width: 100px;
         height: auto;
     }
+}
+
+/* Hidden Class to Toggle Visibility */
+.hidden {
+    display: none !important;
+    opacity: 0 !important;
+    transition: opacity 0.3s ease !important;
 }
