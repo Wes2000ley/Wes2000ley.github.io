@@ -982,41 +982,84 @@ input[type="range"]::-moz-range-thumb {
     display: none;
 }
 
-.auth-form {
-    max-width: 300px;
-    margin: auto;
-    padding: 20px;
-    border-radius: 10px;
-    text-align: center;
+/* Mobile styles for screens smaller than 768px */
+@media only screen and (max-width: 768px) {
+    .pokedex-container {
+        grid-template-areas:
+            "pokedex-text"
+            "search-bar"
+            "type-filter"
+            "pokemon-list"
+            "pagination";
+        grid-template-rows: auto auto auto 1fr auto;
+        gap: 10px;
+        padding: 10px;
+    }
+
+    .pokedex-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .pokedex-header h1 {
+        font-size: 1.8em;
+        text-align: center;
+    }
+
+    #search-bar {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    .type-filter {
+        justify-content: flex-start;
+        width: 100%;
+    }
+
+    .pokedex {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 10px;
+    }
+
+    .pokemon-card {
+        padding: 10px;
+        font-size: 0.9em;
+    }
+
+    .modal-content {
+        width: 95%;
+        max-width: 400px;
+        padding: 10px;
+    }
+
+    .pokemon-details,
+    .pokemon-stats {
+        font-size: 0.9em;
+    }
 }
 
-.auth-form h2 {
-    margin-bottom: 20px;
+/* Styles for screens smaller than 480px */
+@media only screen and (max-width: 480px) {
+    .pokedex-header h1 {
+        font-size: 1.5em;
+    }
+
+    #pokemon-list {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    }
+
+    .pokemon-card {
+        padding: 5px;
+    }
+
+    .modal-content {
+        padding: 5px;
+    }
+
+    .pokemon-details img {
+        width: 100px;
+        height: auto;
+    }
 }
 
-.auth-form input {
-    width: calc(100% - 20px);
-    padding: 10px;
-    margin: 10px 0;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-}
 
-.auth-form button {
-    width: 100%;
-    padding: 10px;
-    border: none;
-    background-color: #db3c36;
-    color: #fff;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 1em;
-}
-
-.auth-form button:hover {
-    background-color: #0099cc;
-}
-
-.auth-form p {
-    margin-top: 20px;
-}
