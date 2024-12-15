@@ -877,20 +877,12 @@ body.dark-mode .auth-form {
 /* --- Override Styles for Legendary and Mythical Labels Inside the Modal --- */
 .modal .PPP.Pleg,
 .modal .PPP.Pmyth {
-    animation: none !important;
-    background: none !important;
-    -webkit-background-clip: none !important;
-    background-clip: none !important;
-    color: inherit !important; /* Ensures the color is as defined inline or default */
-}
-
-/* --- Specifically Set Colors for Legendary and Mythical in Modal --- */
-.modal .PPP.Pleg {
-    color: gold !important;
-}
-
-.modal .PPP.Pmyth {
-    color: silver !important;
+    background: linear-gradient(to right, #6666ff, #0099ff, #00ff00, #ff3399, #6666ff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: rainbow_animation 15s alternate-reverse linear infinite;
+    background-size: 400% 100%;
 }
 
 /* --- Additional Small Screen Styles --- */
