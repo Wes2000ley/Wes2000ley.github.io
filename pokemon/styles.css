@@ -1171,8 +1171,10 @@ body.dark-mode .auth-form {
 
 /* --- Responsive Images in Modal --- */
 .modal-content img {
+    width: auto;
+    max-height: 24vw;
     max-width: 100%;
-    height: auto;
+    height: auto; 
     border-radius: 5px;
 }
 
