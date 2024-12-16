@@ -22,8 +22,8 @@ body {
 button,
 a,
 .pokemon-card,
-label.legendary,
-label.mythical,
+label.isLegendary,
+label.isMythical,
 .type-filter label,
 #type-filter label,
 .pokedex-header h1,
@@ -152,6 +152,16 @@ input[type='range'] {
 }
 
 /* --- Legendary and Mythical Labels --- */
+label.isLegendary {
+    background: gold;
+    color: #000;
+}
+
+label.isMythical {
+    background: silver;
+    color: #000;
+}
+
 label.legendary {
     background: gold;
     color: #000;
