@@ -295,90 +295,12 @@ document.addEventListener("DOMContentLoaded", function() {
         return;
     }
 
-
-    
-    function setupLegendaryAndMythicalFilters() {
-        const legendaryLabel = document.createElement('label');
-        legendaryLabel.htmlFor = 'filter-legendary';
-        legendaryLabel.classList.add('legendary');
-        legendaryLabel.textContent = 'Legendary';
-
-        legendaryLabel.addEventListener('click', () => {
-            legendaryFilter = !legendaryFilter;
-            currentPage = 1;
-            displayPokemonData(pokemonData, searchTerm, typesToFilter, legendaryFilter, mythicalFilter);
-            if (legendaryFilter) {
-                legendaryLabel.classList.add('click');
-                legendaryLabel.style.animation = 'rainbow 5s infinite';
-                legendaryLabel.style.fontWeight = '900';
-                legendaryLabel.style.scale = '1.1';
-                legendaryLabel.style.border = 'solid black 2px';
-                legendaryLabel.style.boxShadow = '0px 0px 0px 2px black inset';
-                legendaryLabel.style.padding = '5px 10px';
-            } else {
-                legendaryLabel.classList.remove('click');
-                legendaryLabel.style.animation = '';
-                legendaryLabel.style.backgroundColor = '#FFD700';
-                legendaryLabel.style.fontWeight = '600';
-                legendaryLabel.style.border = '1px solid #ccc';
-                legendaryLabel.style.boxShadow = '';
-                legendaryLabel.style.padding = '5px 10px';
-                legendaryLabel.style.scale = '1';
-            }
-        });
-
-        const mythicalLabel = document.createElement('label');
-        mythicalLabel.htmlFor = 'filter-mythical';
-        mythicalLabel.classList.add('mythical');
-        mythicalLabel.textContent = 'Mythical';
-
-        mythicalLabel.addEventListener('click', () => {
-            mythicalFilter = !mythicalFilter;
-            currentPage = 1;
-            displayPokemonData(pokemonData, searchTerm, typesToFilter, legendaryFilter, mythicalFilter);
-            if (mythicalFilter) {
-                mythicalLabel.classList.add('click');
-                mythicalLabel.style.animation = 'rainbow 5s infinite';
-                mythicalLabel.style.fontWeight = '900';
-                mythicalLabel.style.scale = '1.1';
-                mythicalLabel.style.border = 'solid black 2px';
-                mythicalLabel.style.boxShadow = '0px 0px 0px 2px black inset';
-                mythicalLabel.style.padding = '5px 10px';
-            } else {
-                mythicalLabel.classList.remove('click');
-                mythicalLabel.style.animation = '';
-                mythicalLabel.style.backgroundColor = '#C0C0C0';
-                mythicalLabel.style.fontWeight = '600';
-                mythicalLabel.style.border = '1px solid #ccc';
-                mythicalLabel.style.boxShadow = '';
-                mythicalLabel.style.padding = '5px 10px';
-                mythicalLabel.style.scale = '1';
-            }
-        });
-
-        typeFilter.appendChild(legendaryLabel);
-        typeFilter.appendChild(mythicalLabel);
-    }
-
-    // Function to update styles of Legendary and Mythical labels
-    function updateLegendaryMythicalStyles(label, isActive) {
-        if (isActive) {
-            label.classList.add('active-filter');
-            label.style.backgroundColor = '#FFD700'; // Gold color for active filter
-            label.style.fontWeight = 'bold';
-        } else {
-            label.classList.remove('active-filter');
-            label.style.backgroundColor = '#FFD700'; // Gold color for active filter
-            label.style.fontWeight = 'normal';
-        }
-    }
-
     // Setup Type Filters
     types.forEach(type => {
         const label = document.createElement('label');
         label.htmlFor = `type-${type}`;
         label.textContent = type;
-        label.classList.add('type-filter-label');
+        label.classList.add('pokemon-type-label', 'type-filter-label'); // Added 'pokemon-type-label'
 
         if (typeColors[type.toLowerCase()]) {
             const textColor = typeColors[type.toLowerCase()];
@@ -389,7 +311,9 @@ document.addEventListener("DOMContentLoaded", function() {
 
             label.addEventListener('click', () => {
                 label.classList.toggle('checked');
-                typesToFilter = Array.from(typeFilter.querySelectorAll('.checked')).map(label => label.textContent.toLowerCase());
+                // Select only labels with 'pokemon-type-label' class
+                typesToFilter = Array.from(typeFilter.querySelectorAll('.pokemon-type-label.checked'))
+                    .map(label => label.textContent.toLowerCase());
                 currentPage = 1;
                 displayPokemonData();
             });
@@ -397,6 +321,38 @@ document.addEventListener("DOMContentLoaded", function() {
 
         typeFilter.appendChild(label);
     });
+
+    // Separate Setup for Legendary and Mythical Filters
+    function setupLegendaryAndMythicalFilters() {
+        const legendaryLabel = document.createElement('label');
+        legendaryLabel.htmlFor = 'filter-legendary';
+        legendaryLabel.classList.add('legendary-mythical-label', 'filter-type-label', 'legendary-label'); // Added 'legendary-mythical-label'
+        legendaryLabel.textContent = 'Legendary';
+
+        legendaryLabel.addEventListener('click', () => {
+            legendaryLabel.classList.toggle('checked');
+            legendaryFilter = !legendaryFilter;
+            currentPage = 1;
+            displayPokemonData();
+            legendaryLabel.classList.toggle('active', legendaryFilter);
+        });
+
+        const mythicalLabel = document.createElement('label');
+        mythicalLabel.htmlFor = 'filter-mythical';
+        mythicalLabel.classList.add('legendary-mythical-label', 'filter-type-label','mythic-label'); // Added 'legendary-mythical-label'
+        mythicalLabel.textContent = 'Mythical';
+
+        mythicalLabel.addEventListener('click', () => {
+            mythicalLabel.classList.toggle('checked');
+            mythicalFilter = !mythicalFilter;
+            currentPage = 1;
+            displayPokemonData();
+            mythicalLabel.classList.toggle('active', mythicalFilter);
+        });
+
+        typeFilter.appendChild(legendaryLabel);
+        typeFilter.appendChild(mythicalLabel);
+    }
 
     // Pokedex Click Event (Reset Functionality)
     const pokedex = document.getElementById('pokedex');
@@ -412,33 +368,16 @@ document.addEventListener("DOMContentLoaded", function() {
             currentPage = 1;
             resetSliders();
 
-            // Reset Legendary and Mythical Labels
-            const legendaryLabel = document.querySelector('.legendary');
-            const mythicalLabel = document.querySelector('.mythical');
-
-            if (legendaryLabel) {
-                legendaryLabel.classList.remove('active-filter');
-                label.style.backgroundColor = '#FFD700'; // Gold color for active filter
-                legendaryLabel.style.fontWeight = 'normal';
-            }
-
-            if (mythicalLabel) {
-                mythicalLabel.classList.remove('active-filter');
-                mythicalLabel.style.backgroundColor = '#f0f0f0';
-                mythicalLabel.style.fontWeight = 'normal';
-            }
-
             // Reset Search Bar
             const searchBar = document.getElementById('search-bar');
             if (searchBar) {
                 searchBar.value = '';
             }
 
-            // Reset Type Filters
-            const typeFilterCheckboxes = document.querySelectorAll('#type-filter label');
-            typeFilterCheckboxes.forEach(label => {
-                label.classList.remove('checked');
-                label.style.border = 'none';
+            // Reset Type and Legendary/Mythical Filters
+            const typeFilterLabels = typeFilter.querySelectorAll('.type-filter-label, .legendary-mythical-label');
+            typeFilterLabels.forEach(label => {
+                label.classList.remove('checked', 'active');
             });
 
             displayPokemonData();
@@ -522,6 +461,8 @@ document.addEventListener("DOMContentLoaded", function() {
             <a href="https://pokemondb.net/pokedex/${pokemon.name.toLowerCase()}" target="_blank" class="pdlink">Pokémon Database</a>
             <p>Habitat: ${pokemon.habitat}</p>
             <p>Abilities: ${pokemon.abilities}</p>
+            <p>Previous Evolution: ${pokemon.previousEvolution}</p>
+            <p>Upcoming Evolution: ${pokemon.upcomingEvolution}</p>
     
         `;} else { 
             if(pokemon.color === 'white'){ 
@@ -535,6 +476,9 @@ document.addEventListener("DOMContentLoaded", function() {
                 <a href="https://pokemondb.net/pokedex/${pokemon.name.toLowerCase()}" target="_blank" class="pdlink">Pokémon Database</a>
                 <p>Habitat: ${pokemon.habitat}</p>
                 <p>Abilities: ${pokemon.abilities}</p>
+                <p>Previous Evolution: ${pokemon.previousEvolution}</p>
+                <p>Upcoming Evolution: ${pokemon.upcomingEvolution}</p>
+    
             `;} else {
                 modalDetails.innerHTML = `
                 <div style="color: ${pokemon.color}">${pokemon.name}</div>
@@ -546,6 +490,8 @@ document.addEventListener("DOMContentLoaded", function() {
                 <a href="https://pokemondb.net/pokedex/${pokemon.name.toLowerCase()}" target="_blank" class="pdlink">Pokémon Database</a>
                 <p>Habitat: ${pokemon.habitat}</p>
                 <p>Abilities: ${pokemon.abilities}</p>
+                <p>Previous Evolution: ${pokemon.previousEvolution}</p>
+                <p>Upcoming Evolution: ${pokemon.upcomingEvolution}</p>
             `;} 
         }
         document.getElementById('pokemon-image').src = pokemon.spriteLink;
@@ -662,6 +608,4 @@ document.addEventListener("DOMContentLoaded", function() {
     darkModeToggle.addEventListener('click', () => {
         document.body.classList.toggle('dark-mode');
     });
-
-
 });

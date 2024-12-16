@@ -140,11 +140,10 @@ input[type='range'] {
 
 .type-filter label {
     padding: 5px 10px;
-    border: 1px solid #ccc;
+    border: 2px solid black;
     border-radius: 5px;
     transition: transform 0.3s ease, background-color 0.3s, color 0.3s;
     font-weight: 600;
-    background: #f0f0f0; /* Default background */
 }
 
 .type-filter label:hover {
@@ -152,15 +151,13 @@ input[type='range'] {
 }
 
 /* --- Legendary and Mythical Labels --- */
-label.isLegendary {
+.legendary-label{
     background: gold;
     color: #000;
 }
 
-label.isMythical {
-    background: silver;
-    color: #000;
-}
+.mythical-label { background: silver;
+    color: #000;}
 
 label.legendary {
     background: gold;
@@ -1189,3 +1186,4 @@ body.dark-mode .auth-form {
     overflow-y: auto;
     -webkit-overflow-scrolling: touch; /* Enables momentum scrolling on iOS */
 }
+
