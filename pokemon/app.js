@@ -36,6 +36,41 @@ document.addEventListener("DOMContentLoaded", function() {
     const PLACEHOLDER_PREV_EVO = 'https://via.placeholder.com/150?text=No+Previous+Evolution';
     const PLACEHOLDER_NEXT_EVO = 'https://via.placeholder.com/150?text=No+Upcoming+Evolution';
 
+    /**
+     * Checks if a Pokémon matches the current active filters.
+     * @param {Object} pokemon - The Pokémon object to check.
+     * @returns {boolean} - Returns true if the Pokémon matches all active filters.
+     */
+    function isPokemonMatchingFilters(pokemon) {
+        // Check type filters
+        const typeMatch = typesToFilter.length === 0 || typesToFilter.every(type => 
+            pokemon.types.map(t => t.toLowerCase()).includes(type.toLowerCase())
+        );
+        
+        // Check legendary and mythical filters
+        const legendaryMatch = !legendaryFilter || pokemon.isLegendary === true;
+        const mythicalMatch = !mythicalFilter || pokemon.isMythical === true;
+        
+        // Check slider filters
+        const hpMin = parseInt(document.getElementById('hp-slider').value) || 0;
+        const attackMin = parseInt(document.getElementById('attack-slider').value) || 0;
+        const defenseMin = parseInt(document.getElementById('defense-slider').value) || 0;
+        const specialAttackMin = parseInt(document.getElementById('special-attack-slider').value) || 0;
+        const specialDefenseMin = parseInt(document.getElementById('special-defense-slider').value) || 0;
+        const speedMin = parseInt(document.getElementById('speed-slider').value) || 0;
+        const totalBaseStatsMin = parseInt(document.getElementById('total-base-stats-slider').value) || 0;
+        
+        const hpMatch = pokemon.stats.hp >= hpMin;
+        const attackMatch = pokemon.stats.attack >= attackMin;
+        const defenseMatch = pokemon.stats.defense >= defenseMin;
+        const specialAttackMatch = pokemon.stats.specialAttack >= specialAttackMin;
+        const specialDefenseMatch = pokemon.stats.specialDefense >= specialDefenseMin;
+        const speedMatch = pokemon.stats.speed >= speedMin;
+        const totalBaseStatsMatch = pokemon.totalBaseStats >= totalBaseStatsMin;
+        
+        return typeMatch && legendaryMatch && mythicalMatch && hpMatch && attackMatch && defenseMatch && specialAttackMatch && specialDefenseMatch && speedMatch && totalBaseStatsMatch;
+    }
+
     // Fetch and display Pokémon data from API
     function fetchPokemonData() {
         fetch('/api/pokemons') // Replace with your actual API endpoint
@@ -65,31 +100,15 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
             });
     }
+
     // Function to display Pokémon data based on current filters and pagination
     function displayPokemonData() {
-        const hpMin = parseInt(document.getElementById('hp-slider').value) || 0;
-        const attackMin = parseInt(document.getElementById('attack-slider').value) || 0;
-        const defenseMin = parseInt(document.getElementById('defense-slider').value) || 0;
-        const specialAttackMin = parseInt(document.getElementById('special-attack-slider').value) || 0;
-        const specialDefenseMin = parseInt(document.getElementById('special-defense-slider').value) || 0;
-        const speedMin = parseInt(document.getElementById('speed-slider').value) || 0;
-        const totalBaseStatsMin = parseInt(document.getElementById('total-base-stats-slider').value) || 0;
-
+        // No need to redefine min values here since they're checked in isPokemonMatchingFilters
         // Filter the data based on search, type, legendary, mythical, and slider values
         filteredData = pokemonData.filter(pokemon => {
             const nameMatch = pokemon.name.toLowerCase().includes(searchTerm.toLowerCase());
-            const typeMatch = typesToFilter.length === 0 || typesToFilter.every(type => pokemon.types.map(t => t.toLowerCase()).includes(type.toLowerCase()));
-            const legendaryMatch = !legendaryFilter || pokemon.isLegendary === true;
-            const mythicalMatch = !mythicalFilter || pokemon.isMythical === true;
-            const hpMatch = pokemon.stats.hp >= hpMin;
-            const attackMatch = pokemon.stats.attack >= attackMin;
-            const defenseMatch = pokemon.stats.defense >= defenseMin;
-            const specialAttackMatch = pokemon.stats.specialAttack >= specialAttackMin;
-            const specialDefenseMatch = pokemon.stats.specialDefense >= specialDefenseMin;
-            const speedMatch = pokemon.stats.speed >= speedMin;
-            const totalBaseStatsMatch = pokemon.totalBaseStats >= totalBaseStatsMin;
-
-            return nameMatch && typeMatch && legendaryMatch && mythicalMatch && hpMatch && attackMatch && defenseMatch && specialAttackMatch && specialDefenseMatch && speedMatch && totalBaseStatsMatch;
+            const filterMatch = isPokemonMatchingFilters(pokemon);
+            return nameMatch && filterMatch;
         });
 
         // Calculate pagination
@@ -388,21 +407,50 @@ document.addEventListener("DOMContentLoaded", function() {
                 label.classList.remove('checked', 'active');
             });
 
+            // Clear Autocomplete Suggestions
+            const autocompleteContainer = document.getElementById('autocomplete-list');
+            if (autocompleteContainer) {
+                autocompleteContainer.innerHTML = '';
+                autocompleteContainer.style.display = 'none';
+            }
+
             displayPokemonData();
         });
     }
 
-    // Search Bar Functionality
     const searchBar = document.getElementById('search-bar');
-    if (!searchBar) {
-        console.error('Search bar element not found');
-    } else {
-        searchBar.addEventListener('input', event => {
+
+    // Debounce Mechanism for Search Input
+    let debounceTimeout;
+    searchBar.addEventListener('input', event => {
+        clearTimeout(debounceTimeout);
+        debounceTimeout = setTimeout(() => {
             searchTerm = event.target.value.trim();
             currentPage = 1;
             displayPokemonData();
-        });
-    }
+            
+            // Implement autocomplete suggestions
+            if (searchTerm.length === 0) {
+                const autocompleteContainer = document.getElementById('autocomplete-list');
+                if (autocompleteContainer) {
+                    autocompleteContainer.innerHTML = '';
+                    autocompleteContainer.style.display = 'none';
+                }
+                return;
+            }
+
+            // Generate suggestions based on search term and active filters
+            const suggestions = Object.keys(pokemonMap)
+                .filter(name => 
+                    name.startsWith(searchTerm.toLowerCase()) && 
+                    isPokemonMatchingFilters(pokemonMap[name.toLowerCase()])
+                )
+                .slice(0, 5) // Limit to top 5 suggestions
+                .map(name => capitalizeFirstLetter(name));
+
+            showAutocompleteSuggestions(suggestions);
+        }, 300); // 300ms debounce
+    });
 
     // Initialize Filters
     setupLegendaryAndMythicalFilters();
@@ -423,7 +471,10 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     };
 
-    // Function to display Pokémon details in the modal
+    /**
+     * Displays Pokémon details in the modal.
+     * @param {Object} pokemon - The Pokémon object to display.
+     */
     function displayPokemonDetails(pokemon) {
         if (!modal) {
             console.error('Modal element not found');
@@ -451,94 +502,82 @@ document.addEventListener("DOMContentLoaded", function() {
         if (pokemon.isMythical) {
             legendaryMythicalHTML += `<p class="PPP Pmyth">Mythical</p>`;
         }
-    
-        document.getElementById('pokemon-image').src = pokemon.sprite;
-        if (pokemon.isLegendary || pokemon.isMythical) {
-            modalDetails.innerHTML = `
-            <div style="background: linear-gradient(to left, #6666ff, #0099ff , #00ff00, #ff3399, #6666ff);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            animation: rainbow_animation 6s alternate-reverse linear infinite;
-            background-size: 400% 100%;">${pokemon.name}</div>
+
+        // Capitalize abilities for better readability
+        const abilitiesFormatted = Array.isArray(pokemon.abilities)
+            ? pokemon.abilities.map(ab => capitalizeFirstLetter(ab)).join(', ')
+            : capitalizeFirstLetter(pokemon.abilities);
+
+        modalDetails.innerHTML = `
+            <div style="color: ${pokemon.color === 'white' ? 'black' : pokemon.color};">
+                ${capitalizeFirstLetter(pokemon.name)}
+            </div>
             <p class="Mtypes">${typeHTML}</p>
             ${legendaryMythicalHTML}
             <p class='height'>Height: ${pokemon.height}</p>
             <p class='weight'>Weight: ${pokemon.weight}</p>
-            <img src="${pokemon.officialArtLink}" alt="${pokemon.name} official art" onError="this.onerror=null;this.src='${pokemon.sprite}';">
+            <img src="${pokemon.officialArtLink || PLACEHOLDER_ART}" alt="${capitalizeFirstLetter(pokemon.name)} official art" onError="this.onerror=null;this.src='${PLACEHOLDER_ART}';">
             <a href="https://pokemondb.net/pokedex/${pokemon.name.toLowerCase()}" target="_blank" class="pdlink">Pokémon Database</a>
-            <p>Habitat: ${pokemon.habitat}</p>
-            <p>Abilities: ${pokemon.abilities}</p>
-            <p>Previous Evolution: ${pokemon.previousEvolution}</p>
-            <p>Upcoming Evolution: ${pokemon.upcomingEvolution}</p>
-    
-        `;} else { 
-            if(pokemon.color === 'white'){ 
-                modalDetails.innerHTML = `
-                <div style="color: black">${pokemon.name}</div>
-                <p class="Mtypes">${typeHTML}</p>
-                ${legendaryMythicalHTML}
-                <p class='height'>Height: ${pokemon.height}</p>
-                <p class='weight'>Weight: ${pokemon.weight}</p>
-                <img src="${pokemon.officialArtLink}" alt="${pokemon.name} official art" onError="this.onerror=null;this.src='${pokemon.sprite}';">
-                <a href="https://pokemondb.net/pokedex/${pokemon.name.toLowerCase()}" target="_blank" class="pdlink">Pokémon Database</a>
-                <p>Habitat: ${pokemon.habitat}</p>
-                <p>Abilities: ${pokemon.abilities}</p>
-                <p>Previous Evolution: ${pokemon.previousEvolution}</p>
-                <p>Upcoming Evolution: ${pokemon.upcomingEvolution}</p>
-    
-            `;} else {
-                modalDetails.innerHTML = `
-                <div style="color: ${pokemon.color}">${pokemon.name}</div>
-                <p class="Mtypes">${typeHTML}</p>
-                ${legendaryMythicalHTML}
-                <p class='height'>Height: ${pokemon.height}</p>
-                <p class='weight'>Weight: ${pokemon.weight}</p>
-                <img src="${pokemon.officialArtLink}" alt="${pokemon.name} official art" onError="this.onerror=null;this.src='${pokemon.sprite}';">
-                <a href="https://pokemondb.net/pokedex/${pokemon.name.toLowerCase()}" target="_blank" class="pdlink">Pokémon Database</a>
-                <p>Habitat: ${pokemon.habitat}</p>
-                <p>Abilities: ${pokemon.abilities}</p>
-                <p>Previous Evolution: ${pokemon.previousEvolution}</p>
-                <p>Upcoming Evolution: ${pokemon.upcomingEvolution}</p>
-            `;} 
-        }
+            <p>Habitat: ${capitalizeFirstLetter(pokemon.habitat)}</p>
+            <p>Abilities: ${abilitiesFormatted}</p>
+            <p>Previous Evolution: ${capitalizeFirstLetter(pokemon.previousEvolution)}</p>
+            <p>Upcoming Evolution: ${capitalizeFirstLetter(pokemon.upcomingEvolution)}</p>
+        `;
 
-        
-       // Handle Upcoming Evolution Image
-       if (pokemon.upcomingEvolution && pokemon.upcomingEvolution.toLowerCase() !== "none") {
-        const nextEvo = pokemonMap[pokemon.upcomingEvolution.toLowerCase()];
-        if (nextEvo && nextEvo.spriteLink) {
-            document.getElementById('pokemon-image-next-evo').src = nextEvo.spriteLink;
-            document.getElementById('pokemon-image-next-evo').alt = capitalizeFirstLetter(pokemon.upcomingEvolution);
+        // Handle Upcoming Evolution Image
+        if (pokemon.upcomingEvolution && pokemon.upcomingEvolution.toLowerCase() !== "none") {
+            const nextEvo = pokemonMap[pokemon.upcomingEvolution.toLowerCase()];
+            if (nextEvo && nextEvo.spriteLink) {
+                const nextEvoImg = document.getElementById('pokemon-image-next-evo');
+                if (nextEvoImg) {
+                    nextEvoImg.src = nextEvo.spriteLink;
+                    nextEvoImg.alt = capitalizeFirstLetter(pokemon.upcomingEvolution);
+                }
+            } else {
+                // Evolution name provided but not found in the dataset
+                const nextEvoImg = document.getElementById('pokemon-image-next-evo');
+                if (nextEvoImg) {
+                    nextEvoImg.src = PLACEHOLDER_NEXT_EVO;
+                    nextEvoImg.alt = "Upcoming Evolution Not Found";
+                }
+            }
         } else {
-            // Evolution name provided but not found in the dataset
-            document.getElementById('pokemon-image-next-evo').src = PLACEHOLDER_PREV_EVO;
-            document.getElementById('pokemon-image-next-evo').alt = "Upcoming Evolution Not Found";
+            // No upcoming evolution
+            const nextEvoImg = document.getElementById('pokemon-image-next-evo');
+            if (nextEvoImg) {
+                nextEvoImg.src = PLACEHOLDER_NEXT_EVO;
+                nextEvoImg.alt = "No Upcoming Evolution";
+            }
         }
-    } else {
-        // No previous evolution
-        document.getElementById('pokemon-image-next-evo').src = PLACEHOLDER_PREV_EVO;
-        document.getElementById('pokemon-image-next-evo').alt = "No Upcoming Evolution";
-    }
 
-    /// Handle Previous Evolution Image
-    if (pokemon.previousEvolution && pokemon.previousEvolution.toLowerCase() !== "none") {
-        const prevEvo = pokemonMap[pokemon.previousEvolution.toLowerCase()];
-        if (prevEvo && prevEvo.spriteLink) {
-            document.getElementById('pokemon-image-prev-evo').src = prevEvo.spriteLink;
-            document.getElementById('pokemon-image-prev-evo').alt = capitalizeFirstLetter(pokemon.previousEvolution);
+        // Handle Previous Evolution Image
+        if (pokemon.previousEvolution && pokemon.previousEvolution.toLowerCase() !== "none") {
+            const prevEvo = pokemonMap[pokemon.previousEvolution.toLowerCase()];
+            if (prevEvo && prevEvo.spriteLink) {
+                const prevEvoImg = document.getElementById('pokemon-image-prev-evo');
+                if (prevEvoImg) {
+                    prevEvoImg.src = prevEvo.spriteLink;
+                    prevEvoImg.alt = capitalizeFirstLetter(pokemon.previousEvolution);
+                }
+            } else {
+                // Evolution name provided but not found in the dataset
+                const prevEvoImg = document.getElementById('pokemon-image-prev-evo');
+                if (prevEvoImg) {
+                    prevEvoImg.src = PLACEHOLDER_PREV_EVO;
+                    prevEvoImg.alt = "Previous Evolution Not Found";
+                }
+            }
         } else {
-            // Evolution name provided but not found in the dataset
-            document.getElementById('pokemon-image-prev-evo').src = PLACEHOLDER_PREV_EVO;
-            document.getElementById('pokemon-image-prev-evo').alt = "Previous Evolution Not Found";
+            // No previous evolution
+            const prevEvoImg = document.getElementById('pokemon-image-prev-evo');
+            if (prevEvoImg) {
+                prevEvoImg.src = PLACEHOLDER_PREV_EVO;
+                prevEvoImg.alt = "No Previous Evolution";
+            }
         }
-    } else {
-        // No previous evolution
-        document.getElementById('pokemon-image-prev-evo').src = PLACEHOLDER_PREV_EVO;
-        document.getElementById('pokemon-image-prev-evo').alt = "No Previous Evolution";
-    }
 
-    document.getElementById('pokemon-image').src = pokemon.spriteLink;
+        document.getElementById('pokemon-image').src = pokemon.spriteLink;
+
 
         // Populate Modal Stats
         modalStats.innerHTML = `
@@ -645,12 +684,65 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     });
 
+    // Dark Mode Toggle
     const darkModeToggle = document.createElement('button');
     darkModeToggle.textContent = 'Toggle Dark Mode';
     darkModeToggle.classList.add('dark-mode-toggle');
-    document.querySelector('.pokedex-header').appendChild(darkModeToggle);
+    const pokedexHeader = document.querySelector('.pokedex-header');
+    if (pokedexHeader) {
+        pokedexHeader.appendChild(darkModeToggle);
+    }
 
     darkModeToggle.addEventListener('click', () => {
         document.body.classList.toggle('dark-mode');
+    });
+
+    // Autocomplete Suggestions Function
+    function showAutocompleteSuggestions(suggestions) {
+        const autocompleteContainer = document.getElementById('autocomplete-list');
+        if (!autocompleteContainer) return;
+
+        // Clear previous suggestions
+        autocompleteContainer.innerHTML = '';
+
+        if (suggestions.length === 0) {
+            autocompleteContainer.style.display = 'none';
+            return;
+        }
+
+        // Create suggestion items
+        suggestions.forEach(name => {
+            const suggestionItem = document.createElement('div');
+            suggestionItem.classList.add('autocomplete-suggestion');
+            suggestionItem.textContent = name;
+
+            // Add click event to select the suggestion
+            suggestionItem.addEventListener('click', () => {
+                const searchBar = document.getElementById('search-bar');
+                if (searchBar) {
+                    searchBar.value = name;
+                    searchTerm = name.toLowerCase();
+                    currentPage = 1;
+                    displayPokemonData();
+                    autocompleteContainer.innerHTML = '';
+                    autocompleteContainer.style.display = 'none';
+                }
+            });
+
+            autocompleteContainer.appendChild(suggestionItem);
+        });
+
+        // Show the autocomplete container
+        autocompleteContainer.style.display = 'block';
+    }
+
+    // Click outside to close autocomplete
+    document.addEventListener('click', function (e) {
+        const autocompleteContainer = document.getElementById('autocomplete-list');
+        const searchBar = document.getElementById('search-bar');
+        if (autocompleteContainer && !autocompleteContainer.contains(e.target) && e.target !== searchBar) {
+            autocompleteContainer.innerHTML = '';
+            autocompleteContainer.style.display = 'none';
+        }
     });
 });

@@ -15,10 +15,11 @@
 <!-- Main Content -->
 <div id="main-content">
 </div>
-
-
             <h1 id="pokedex" class="pokedex-text">Wesley's Pokédex</h1>
-            <input type="text" id="search-bar" placeholder="Search Pokémon by name..." autocomplete="off">
+            <div class="search-container" style="position: relative;">
+                <input type="text" id="search-bar" placeholder="Search Pokémon..." autocomplete="off">
+                <div id="autocomplete-list" class="autocomplete-items"></div>
+            </div>
             <div id="type-filter" class="type-filter"></div>
         </div>
         <button id="toggle-sliders">Toggle Stat Sliders</button>
