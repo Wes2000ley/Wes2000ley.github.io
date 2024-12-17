@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", function() {
     let pokemonData = [];
+    const pokemonMap = {}; // Lookup map for Pokémon by name
     let filteredData = [];
     let searchTerm = '';
     let typesToFilter = [];
@@ -29,9 +30,11 @@ document.addEventListener("DOMContentLoaded", function() {
         fairy: '#ee99ac'
     };
 
-    // Placeholder Images (Replace these URLs with your own if desired)
+    // Placeholder Images
     const PLACEHOLDER_SPRITE = 'https://via.placeholder.com/150?text=No+Sprite';
     const PLACEHOLDER_ART = 'https://via.placeholder.com/300?text=No+Art';
+    const PLACEHOLDER_PREV_EVO = 'https://via.placeholder.com/150?text=No+Previous+Evolution';
+    const PLACEHOLDER_NEXT_EVO = 'https://via.placeholder.com/150?text=No+Upcoming+Evolution';
 
     // Fetch and display Pokémon data from API
     function fetchPokemonData() {
@@ -44,6 +47,12 @@ document.addEventListener("DOMContentLoaded", function() {
             })
             .then(data => {
                 pokemonData = data; // Assign the fetched data to the global pokemonData variable
+
+                // Create the lookup map
+                data.forEach(pokemon => {
+                    pokemonMap[pokemon.name.toLowerCase()] = pokemon;
+                });
+
                 displayPokemonData(); // Display the Pokémon data
                 updatePaginationControls(); // Initialize pagination controls
             })
@@ -56,7 +65,6 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
             });
     }
-
     // Function to display Pokémon data based on current filters and pagination
     function displayPokemonData() {
         const hpMin = parseInt(document.getElementById('hp-slider').value) || 0;
@@ -494,7 +502,44 @@ document.addEventListener("DOMContentLoaded", function() {
                 <p>Upcoming Evolution: ${pokemon.upcomingEvolution}</p>
             `;} 
         }
-        document.getElementById('pokemon-image').src = pokemon.spriteLink;
+
+        
+       // Handle Upcoming Evolution Image
+       if (pokemon.upcomingEvolution && pokemon.upcomingEvolution.toLowerCase() !== "none") {
+        const nextEvo = pokemonMap[pokemon.upcomingEvolution.toLowerCase()];
+        if (nextEvo && nextEvo.spriteLink) {
+            document.getElementById('pokemon-image-next-evo').src = nextEvo.spriteLink;
+            document.getElementById('pokemon-image-next-evo').alt = capitalizeFirstLetter(pokemon.upcomingEvolution);
+        } else {
+            // Evolution name provided but not found in the dataset
+            document.getElementById('pokemon-image-next-evo').src = PLACEHOLDER_PREV_EVO;
+            document.getElementById('pokemon-image-next-evo').alt = "Upcoming Evolution Not Found";
+        }
+    } else {
+        // No previous evolution
+        document.getElementById('pokemon-image-next-evo').src = PLACEHOLDER_PREV_EVO;
+        document.getElementById('pokemon-image-next-evo').alt = "No Upcoming Evolution";
+    }
+
+    /// Handle Previous Evolution Image
+    if (pokemon.previousEvolution && pokemon.previousEvolution.toLowerCase() !== "none") {
+        const prevEvo = pokemonMap[pokemon.previousEvolution.toLowerCase()];
+        if (prevEvo && prevEvo.spriteLink) {
+            document.getElementById('pokemon-image-prev-evo').src = prevEvo.spriteLink;
+            document.getElementById('pokemon-image-prev-evo').alt = capitalizeFirstLetter(pokemon.previousEvolution);
+        } else {
+            // Evolution name provided but not found in the dataset
+            document.getElementById('pokemon-image-prev-evo').src = PLACEHOLDER_PREV_EVO;
+            document.getElementById('pokemon-image-prev-evo').alt = "Previous Evolution Not Found";
+        }
+    } else {
+        // No previous evolution
+        document.getElementById('pokemon-image-prev-evo').src = PLACEHOLDER_PREV_EVO;
+        document.getElementById('pokemon-image-prev-evo').alt = "No Previous Evolution";
+    }
+
+    document.getElementById('pokemon-image').src = pokemon.spriteLink;
+
         // Populate Modal Stats
         modalStats.innerHTML = `
             <div class="pokemon-stat-bar">

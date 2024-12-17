@@ -1132,7 +1132,8 @@ body.dark-mode .auth-form {
 
 /* --- Ensuring .pokemon-image-container Displays Correctly --- */
 .pokemon-image-container {
-    display: inline-block;
+    flex:1 1;
+    display: flex;
     justify-content: center;
     align-items: center;
     background-color: #fff;
@@ -1150,6 +1151,7 @@ body.dark-mode .auth-form {
 
 /* --- Optimizing .pokemon-details --- */
 .pokemon-details {
+    place-content: center;
     height: 90%;
     background-color: #fff;
     color: #000;
@@ -1161,18 +1163,19 @@ body.dark-mode .auth-form {
     background-image:
         linear-gradient(to right, rgb(159, 159, 159) 0px, transparent 0.5px),
         linear-gradient(to bottom, rgb(159, 159, 159) 0px, transparent 0.5px);
-    display: block; /* Changed from table-cell for better responsiveness */
+    display: grid; /* Changed from table-cell for better responsiveness */
     text-align: center;
     overflow-y: auto;
     font-size: 120%;
     font-weight: 800;
     max-width: fit-content;
+    justify-items: center;
 }
 
 /* --- Responsive Images in Modal --- */
 .modal-content img {
     width: auto;
-    max-height: 24vw;
+    max-height: 50vw;
     max-width: 100%;
     height: auto; 
     border-radius: 5px;
@@ -1189,3 +1192,6 @@ body.dark-mode .auth-form {
     -webkit-overflow-scrolling: touch; /* Enables momentum scrolling on iOS */
 }
 
+.sprite-container{
+    display: flex;
+}

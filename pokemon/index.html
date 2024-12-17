@@ -19,8 +19,7 @@
 
             <h1 id="pokedex" class="pokedex-text">Wesley's Pokédex</h1>
             <input type="text" id="search-bar" placeholder="Search Pokémon by name..." autocomplete="off">
-            <div  id="type-filter" class="type-filter"></div>
-            
+            <div id="type-filter" class="type-filter"></div>
         </div>
         <button id="toggle-sliders">Toggle Stat Sliders</button>
         <div id="slider-filters" class="hidden">
@@ -50,9 +49,17 @@
                         <h2 class="pokemon-name" id="modal-pokemon-name"></h2>
                         <span class="close">BACK</span>
                     </div>
+                <div class="sprite-container">
+                    <div class="pokemon-image-container">
+                        <img src="" id="pokemon-image-prev-evo" alt="Pokemon Image">
+                    </div>
                     <div class="pokemon-image-container">
                         <img src="" id="pokemon-image" alt="Pokemon Image">
                     </div>
+                    <div class="pokemon-image-container">
+                        <img src="" id="pokemon-image-next-evo" alt="Pokemon Image">
+                    </div>
+                </div>
                     <div class="pokemon-stats" id="pokemon-stats"></div>
                     <div class="pokemon-effectiveness" id="pokemon-effectiveness"></div>
                 </div>
