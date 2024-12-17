@@ -520,8 +520,8 @@ document.addEventListener("DOMContentLoaded", function() {
             <a href="https://pokemondb.net/pokedex/${pokemon.name.toLowerCase()}" target="_blank" class="pdlink">Pokémon Database</a>
             <p>Habitat: ${capitalizeFirstLetter(pokemon.habitat)}</p>
             <p>Abilities: ${abilitiesFormatted}</p>
-            <p>Previous Evolution: ${capitalizeFirstLetter(pokemon.previousEvolution)}</p>
-            <p>Upcoming Evolution: ${capitalizeFirstLetter(pokemon.upcomingEvolution)}</p>
+            <p style="display:flex;">Previous Evolution: ${capitalizeFirstLetter(pokemon.previousEvolution)}</p>
+            <p style="display:flex;">Upcoming Evolution: ${capitalizeFirstLetter(pokemon.upcomingEvolution)}</p>
         `;
 
         // Handle Upcoming Evolution Image
