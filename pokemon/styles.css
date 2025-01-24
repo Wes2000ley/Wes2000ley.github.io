@@ -80,7 +80,7 @@ input[type='range'] {
 
 /* --- Search Bar Styles --- */
 #search-bar {
-width: auto;
+width: 100%;
 background-color: #ceff9d;
 padding: 10px;
 border-radius: 50px;
@@ -816,6 +816,9 @@ p {
     margin-inline-start: 0px;
     margin-inline-end: 0px;
     unicode-bidi: isolate;
+    overflow: auto;
+    max-width: 100%;
+    height: fit-content;
 }
 
 /* --- Transitions for Interactive Elements --- */
