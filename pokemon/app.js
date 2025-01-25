@@ -71,6 +71,9 @@ document.addEventListener("DOMContentLoaded", function() {
         return typeMatch && legendaryMatch && mythicalMatch && hpMatch && attackMatch && defenseMatch && specialAttackMatch && specialDefenseMatch && speedMatch && totalBaseStatsMatch;
     }
 
+    
+    
+
     // Fetch and display Pokémon data from API
     function fetchPokemonData() {
         fetch('/api/pokemons') // Replace with your actual API endpoint
@@ -216,17 +219,20 @@ document.addEventListener("DOMContentLoaded", function() {
     const speedValue = document.getElementById('speed-value');
     const totalBaseStatsValue = document.getElementById('total-base-stats-value');
 
-    // Update Slider Values and Refresh Display
-    function updateSliderValues() {
-        hpValue.textContent = hpSlider.value;
-        attackValue.textContent = attackSlider.value;
-        defenseValue.textContent = defenseSlider.value;
-        specialAttackValue.textContent = specialAttackSlider.value;
-        specialDefenseValue.textContent = specialDefenseSlider.value;
-        speedValue.textContent = speedSlider.value;
-        totalBaseStatsValue.textContent = totalBaseStatsSlider.value;
-        displayPokemonData();
-    }
+   // Update Slider Values and Refresh Display
+function updateSliderValues() {
+    // Reset currentPage to 1 whenever sliders are adjusted
+    currentPage = 1;
+
+    hpValue.textContent = hpSlider.value;
+    attackValue.textContent = attackSlider.value;
+    defenseValue.textContent = defenseSlider.value;
+    specialAttackValue.textContent = specialAttackSlider.value;
+    specialDefenseValue.textContent = specialDefenseSlider.value;
+    speedValue.textContent = speedSlider.value;
+    totalBaseStatsValue.textContent = totalBaseStatsSlider.value;
+    displayPokemonData();
+}
 
     // Reset Sliders to Default
     function resetSliders() {
@@ -259,11 +265,13 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Pagination Controls
     function updatePaginationControls() {
-        const totalPages = Math.ceil(filteredData.length / pokemonPerPage);
-        const pageSelect = document.getElementById('page-select');
-        if (!pageSelect) return;
+    const totalPages = Math.ceil(filteredData.length / pokemonPerPage);
+    const pageSelectElements = document.querySelectorAll('#page-select');
 
-        pageSelect.innerHTML = '';
+    if (pageSelectElements.length === 0) return; // No elements to update
+
+    pageSelectElements.forEach(pageSelect => {
+        pageSelect.innerHTML = ''; // Clear existing options
 
         for (let i = 1; i <= totalPages; i++) {
             const option = document.createElement('option');
@@ -274,6 +282,8 @@ document.addEventListener("DOMContentLoaded", function() {
             }
             pageSelect.appendChild(option);
         }
+    });
+
 
         // Disable/Enable Pagination Buttons
         document.getElementById('first-page').disabled = currentPage === 1;
@@ -282,36 +292,70 @@ document.addEventListener("DOMContentLoaded", function() {
         document.getElementById('last-page').disabled = currentPage === totalPages || totalPages === 0;
     }
 
-    // Pagination Event Listeners
-    document.getElementById('first-page').addEventListener('click', () => {
-        currentPage = 1;
-        displayPokemonData();
-    });
-
-    document.getElementById('prev-page').addEventListener('click', () => {
-        if (currentPage > 1) {
-            currentPage--;
+    // Function to attach event listeners to multiple elements sharing the same ID
+    attachListeners();
+function attachListeners() {
+    // First Page Buttons
+    const firstPageButtons = document.querySelectorAll('#first-page');
+    firstPageButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            currentPage = 1;
             displayPokemonData();
-        }
+        });
+    });
+    
+
+    // Previous Page Buttons
+    const prevPageButtons = document.querySelectorAll('#prev-page');
+    prevPageButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                displayPokemonData();
+            } else {
+                console.log("You're already on the first page.");
+            }
+        });
     });
 
-    document.getElementById('next-page').addEventListener('click', () => {
-        const totalPages = Math.ceil(filteredData.length / pokemonPerPage);
-        if (currentPage < totalPages) {
-            currentPage++;
+    // Next Page Buttons
+    const nextPageButtons = document.querySelectorAll('#next-page');
+    nextPageButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const totalPages = Math.ceil(filteredData.length / pokemonPerPage);
+            if (currentPage < totalPages) {
+                currentPage++;
+                displayPokemonData();
+            } else {
+                console.log("You've reached the last page.");
+            }
+        });
+    });
+
+    // Last Page Buttons
+    const lastPageButtons = document.querySelectorAll('#last-page');
+    lastPageButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            currentPage = Math.ceil(filteredData.length / pokemonPerPage);
             displayPokemonData();
-        }
+        });
     });
 
-    document.getElementById('last-page').addEventListener('click', () => {
-        currentPage = Math.ceil(filteredData.length / pokemonPerPage);
-        displayPokemonData();
+    // Page Select Dropdowns
+    const pageSelectElements = document.querySelectorAll('#page-select');
+    pageSelectElements.forEach(select => {
+        select.addEventListener('change', (event) => {
+            const selectedPage = parseInt(event.target.value, 10);
+            if (!isNaN(selectedPage) && selectedPage >= 1 && selectedPage <= Math.ceil(filteredData.length / pokemonPerPage)) {
+                currentPage = selectedPage;
+                displayPokemonData();
+            } else {
+                console.error("Invalid page number selected.");
+            }
+        });
     });
+}
 
-    document.getElementById('page-select').addEventListener('change', (event) => {
-        currentPage = parseInt(event.target.value);
-        displayPokemonData();
-    });
 
     // Define Pokémon Types
     const types = ['Normal', 'Fire', 'Water', 'Grass', 'Electric', 'Ice', 'Fighting', 'Poison', 'Ground', 'Flying', 'Psychic', 'Bug', 'Rock', 'Ghost', 'Dragon', 'Dark', 'Steel', 'Fairy'];

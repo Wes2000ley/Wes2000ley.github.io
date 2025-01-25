@@ -80,7 +80,6 @@ input[type='range'] {
 
 /* --- Search Bar Styles --- */
 #search-bar {
-width: 100%;
 background-color: #ceff9d;
 padding: 10px;
 border-radius: 50px;
@@ -924,7 +923,6 @@ body.dark-mode .auth-form {
 
     #search-bar {
         width: 100%;
-        margin-bottom: 10px;
     }
 
     .search-bar {
